@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 通知接口
+ * 通知接口，实际返回数据在Result的data里，支付系统属于底层服务，不应该外部暴露接口
  *
  * @author chenhaizhuang
  */
