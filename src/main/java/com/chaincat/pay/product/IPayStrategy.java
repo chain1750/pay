@@ -23,7 +23,7 @@ public class IPayStrategy {
         if (!productProperties.getEntities().containsKey(productName)) {
             throw new BizException("产品配置不存在");
         }
-        String beanName = productProperties.getEntities().get(productName);
+        String beanName = productProperties.getEntities().get(productName).getBeanName();
         return applicationContext.getBean(beanName, IPayService.class);
     }
 }

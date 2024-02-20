@@ -17,7 +17,21 @@ import java.util.Map;
 public class ProductProperties {
 
     /**
-     * 产品名称 -> 实现类名称
+     * 产品名称 -> 产品
      */
-    private Map<String, String> entities;
+    private Map<String, Product> entities;
+
+    @Data
+    public static class Product {
+
+        /**
+         * 实现类名称
+         */
+        private String beanName;
+
+        /**
+         * 通知返回数据
+         */
+        private String notifyReturnData;
+    }
 }
