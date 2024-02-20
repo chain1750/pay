@@ -39,7 +39,7 @@ public class PayRefund {
     private String refundState;
 
     /**
-     * 退款金额，不能大于订单金额
+     * 退款金额，不能大于订单金额，单位元
      */
     private BigDecimal refundAmount;
 
