@@ -56,3 +56,92 @@ CREATE TABLE `pay_refund`
     UNIQUE KEY (`refund_id`)
 ) COMMENT = '退款';
 ```
+
+## 二、接口说明
+
+### 支付接口
+
+#### 订单预支付
+
+> POST /pay/order/prepay
+
+> 请求参数
+
+| name          | type   | desc                                    |
+|---------------|--------|-----------------------------------------|
+| userIp        | string | 用户IP，当前下单用户所在IP                         |
+| userId        | string | 用户ID，当前下单用户在系统中的唯一ID                    |
+| orderAmount   | number | 订单金额，单位元，最小0.01元                        |
+| description   | string | 商品描述，简略描述，详细描述在业务方存储                    |
+| productName   | string | 产品名称，用于避免不同渠道上应用ID重复，命名格式：渠道_产品名称（大写字母） |
+| productAppId  | string | 产品应用ID                                  |
+| productOpenId | string | 产品应用用户OpenId                            |
+| expireTime    | string | 过期时间                                    |
+| bizName       | string | 业务名称，用于避免不同业务的业务ID重复，命名格式：模块_业务（大写字母）   |
+| bizId         | string | 业务ID                                    |
+| bizTopic      | string | 业务消息队列主题，支付回调时使用消息队列通知业务方，需要业务方做好消费动作   |
+| bizAttach     | string | 业务附加信息，通知业务方时返回，若所需附加信息过长，建议存储在业务方      |
+| orderAttach   | string | 订单附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参    |
+
+> 返回参数
+
+| name    | type   | desc                                          |
+|---------|--------|-----------------------------------------------|
+| orderId | string | 订单ID                                          |
+| prepay  | object | 预支付，由于业务方无需知晓预支付信息，且不同支付渠道之间预支付信息不同，所以采用Map返回 |
+
+#### 关闭订单
+
+> 业务方需要取消订单，同时需要将支付渠道上的订单一同关闭
+
+> POST /pay/order/close
+
+> 请求参数
+
+| name    | type   | desc |
+|---------|--------|------|
+| orderId | string | 订单ID |
+
+#### 查询订单
+
+> 业务方自身需要轮询订单状态，通过该接口获取
+
+> POST /pay/order/query
+
+> 请求参数
+
+| name    | type   | desc |
+|---------|--------|------|
+| orderId | string | 订单ID |
+
+> 返回参数
+
+| name           | type   | desc                                    |
+|----------------|--------|-----------------------------------------|
+| orderId        | string | 订单ID                                    |
+| orderState     | string | 订单状态：NOT_PAY-未支付，SUCCESS-已支付，CLOSED-已关闭 |
+| productOrderId | string | 产品订单ID                                  |
+| payTime        | string | 支付时间                                    |
+| bizName        | string | 业务名称，用于避免不同业务的业务ID重复，命名格式：模块_业务（大写字母）   |
+| bizId          | string | 业务ID                                    |
+| bizTopic       | string | 业务消息队列主题，支付回调时使用消息队列通知业务方，需要业务方做好消费动作   |
+| bizAttach      | string | 业务附加信息，通知业务方时返回，若所需附加信息过长，建议存储在业务方      |
+
+#### 退款
+
+> POST /pay/refund
+
+> 请求参数
+
+| name         | type   | desc                                 |
+|--------------|--------|--------------------------------------|
+| orderId      | string | 订单ID，关联pay_order                     |
+| refundAmount | number | 退款金额，不能大于订单金额，单位元，最小0.01元            |
+| refundReason | string | 退款原因，简略描述，详细描述在业务方存储                 |
+| refundAttach | string | 退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参 |
+
+> 返回参数
+
+| name     | type   | desc |
+|----------|--------|------|
+| refundId | string | 退款ID |
