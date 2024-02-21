@@ -1,6 +1,5 @@
 package com.chaincat.pay.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,13 +50,11 @@ public class PayRefund {
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
@@ -79,4 +76,10 @@ public class PayRefund {
      * 退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参
      */
     private String refundAttach;
+
+    /**
+     * 订单
+     */
+    @TableField(exist = false)
+    private PayOrder payOrder;
 }

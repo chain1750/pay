@@ -19,7 +19,7 @@ public class IPayStrategy {
 
     private final ProductProperties productProperties;
 
-    public <Order, Refund> IPayService<Order, Refund> get(String productName) {
+    public IPayService get(String productName) {
         if (!productProperties.getEntities().containsKey(productName)) {
             throw new BizException("产品配置不存在");
         }
