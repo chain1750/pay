@@ -138,7 +138,7 @@ public class NotifyServiceImpl implements NotifyService {
             }
             return notifyReturnData;
         } catch (InterruptedException e) {
-            throw new BizException("支付通知加锁失败", e);
+            throw new BizException("退款通知加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();

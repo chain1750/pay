@@ -95,7 +95,7 @@ public class TaskServiceImpl implements TaskService {
                 log.info("轮询订单-消息发送成功, 消息id：{}", msg.getHeaders().get("id"));
             }
         } catch (InterruptedException e) {
-            throw new BizException("支付通知加锁失败", e);
+            throw new BizException("轮询订单加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -139,7 +139,7 @@ public class TaskServiceImpl implements TaskService {
                 log.info("轮询退款-更新退款：{}", payRefund.getRefundId());
             }
         } catch (InterruptedException e) {
-            throw new BizException("支付通知加锁失败", e);
+            throw new BizException("轮询退款加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
