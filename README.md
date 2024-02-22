@@ -6,6 +6,20 @@
 
 - 运行时添加参数：`nacos.address={Nacos地址};environment={环境}`
 - Nacos中配置MySQL、Redis、RocketMQ和jasypt，配置文件名称与`bootstrap.properties`一致，Nacos的命名空间与`environment`一致
+- 配置支付和退款通知地址，格式为：`https域名 + 对外服务接口 + {产品名称}`
+
+> 通知地址说明：
+>
+> 1. 有些支付渠道要求https，统一将通知地址都设置为https
+> 2. 支付系统不对外暴露，所以需要一个对外服务提供接口来转发支付系统的通知接口
+>
+> 举例：
+>
+> https://a.com/api/callback/notify/pay/{productName} ，转发到支付系统的/pay/notify/pay/{productName}接口
+>
+> https://a.com/api/callback/notify/refund/{productName} ，转发到支付系统的/pay/notify/refund/{productName}接口
+>
+> 最终目的是能够正常转发给支付系统对应的接口即可。
 
 ### 基础数据表
 
@@ -56,6 +70,16 @@ CREATE TABLE `pay_refund`
     UNIQUE KEY (`refund_id`)
 ) COMMENT = '退款';
 ```
+
+> 产品名称：系统分离了底层服务，采用策略模式来执行具体的支付方式（指微信、支付宝等），产品名称用于决定采用什么策略。
+>
+> 比如：项目中需要微信小程序支付、微信APP支付、支付宝小程序支付、支付宝APP支付，甚至更大的项目中存在微信小程序A需要支付，微信小程序B需要支付的情况。
+> 那么可以定义：
+> - 产品名称      -> 支付实现类
+> - WECHAT_MP_A  -> WechatJSAPIPayServiceImpl
+> - WECHAT_MP_B  -> WechatJSAPIPayServiceImpl
+> - WECHAT_APP_A -> WechatAPPPayServiceImpl
+> - ALIPAY_APP_A -> AlipayAPPPayServiceImpl
 
 ## 二、接口说明
 

@@ -113,7 +113,7 @@ public class NotifyServiceImpl implements NotifyService {
         // 调用统一支付接口的解析退款通知方法
         PayResult payResult = payService.parseRefundNotify(request);
 
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, payResult.getId()));
+        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_REFUND_QUERY_LOCK, payResult.getId()));
         boolean locked = false;
         PayRefund payRefund;
         try {
