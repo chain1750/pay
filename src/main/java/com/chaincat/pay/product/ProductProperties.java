@@ -21,6 +21,16 @@ public class ProductProperties {
      */
     private Map<String, Product> entities;
 
+    /**
+     * 支付通知地址
+     */
+    private String payNotifyUrl;
+
+    /**
+     * 退款通知地址
+     */
+    private String refundNotifyUrl;
+
     @Data
     public static class Product {
 
