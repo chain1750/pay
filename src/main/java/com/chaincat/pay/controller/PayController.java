@@ -40,7 +40,7 @@ public class PayController {
     }
 
     /**
-     * 关闭订单
+     * 关闭订单，业务方需要取消订单，同时需要将支付渠道上的订单一同关闭
      *
      * @param req 请求
      * @return Result
@@ -52,7 +52,7 @@ public class PayController {
     }
 
     /**
-     * 查询订单
+     * 查询订单，业务方自身需要轮询订单状态，通过该接口获取
      *
      * @param req 请求
      * @return Result

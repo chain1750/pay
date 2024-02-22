@@ -109,7 +109,7 @@ public class PayServiceImpl implements PayService {
             payOrder.setUpdateTime(LocalDateTime.now());
             payOrderMapper.updateById(payOrder);
             log.info("关闭订单：{}", payOrder.getOrderId());
-            // 调用统一支付接口的关闭订单接口
+            // 调用统一支付接口的关闭订单方法
             payService.closeOrder(payOrder);
         } catch (InterruptedException e) {
             throw new BizException("关闭订单加锁失败", e);
@@ -140,18 +140,18 @@ public class PayServiceImpl implements PayService {
             } while (!locked);
             // 统一支付接口
             IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 调用统一支付接口的查询订单接口
+            // 调用统一支付接口的查询订单方法
             PayResult payResult = payService.queryOrder(payOrder);
             // 查询到支付渠道的订单结果之后，对系统订单进行更新
             boolean updated = payService.updateOrder(payResult.getData(), payOrder);
             if (updated) {
                 payOrder.setUpdateTime(LocalDateTime.now());
                 payOrderMapper.updateById(payOrder);
-                log.info("更新订单：{}", payOrder.getOrderId());
+                log.info("查询订单-更新订单：{}", payOrder.getOrderId());
             }
             return BeanUtil.copyProperties(payOrder, OrderResult.class);
         } catch (InterruptedException e) {
-            throw new BizException("关闭订单加锁失败", e);
+            throw new BizException("查询订单加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -183,7 +183,7 @@ public class PayServiceImpl implements PayService {
             payRefund.setUpdateTime(now);
             payRefundMapper.insert(payRefund);
             log.info("创建退款：{}", JSON.toJSONString(payRefund));
-            // 调用统一支付接口的退款接口
+            // 调用统一支付接口的退款方法
             payRefund.setPayOrder(payOrder);
             payService.refund(payRefund);
             // 返回参数
