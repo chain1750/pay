@@ -21,6 +21,31 @@
 >
 > 最终目的是能够正常转发给支付系统对应的接口即可。
 
+- 配置产品名称与实现类映射，示例：
+
+```yaml
+product:
+  pay-notify-url: '支付通知地址，格式：接口 + /{}'
+  refund-notify-url: '退款通知地址，格式：接口 + /{}'
+  name1:
+    bean-name: weChatAppPayService
+    notify-return-data: '通知返回数据'
+  name2:
+    bean-name: weChatH5PayService
+    notify-return-data: '通知返回数据'
+  # ......
+```
+
+> 产品名称：系统分离了底层服务，采用策略模式来执行具体的支付方式（指微信、支付宝等），产品名称用于决定采用什么策略。
+>
+> 比如：项目中需要微信小程序支付、微信APP支付、支付宝小程序支付、支付宝APP支付，甚至更大的项目中存在微信小程序A需要支付，微信小程序B需要支付的情况。
+> 那么可以定义：
+> - 产品名称 -> 支付实现类
+> - WECHAT_MP_A -> WechatJSAPIPayServiceImpl
+> - WECHAT_MP_B -> WechatJSAPIPayServiceImpl
+> - WECHAT_APP_A -> WechatAPPPayServiceImpl
+> - ALIPAY_APP_A -> AlipayAPPPayServiceImpl
+
 ### 基础数据表
 
 ```mysql
@@ -70,16 +95,6 @@ CREATE TABLE `pay_refund`
     UNIQUE KEY (`refund_id`)
 ) COMMENT = '退款';
 ```
-
-> 产品名称：系统分离了底层服务，采用策略模式来执行具体的支付方式（指微信、支付宝等），产品名称用于决定采用什么策略。
->
-> 比如：项目中需要微信小程序支付、微信APP支付、支付宝小程序支付、支付宝APP支付，甚至更大的项目中存在微信小程序A需要支付，微信小程序B需要支付的情况。
-> 那么可以定义：
-> - 产品名称      -> 支付实现类
-> - WECHAT_MP_A  -> WechatJSAPIPayServiceImpl
-> - WECHAT_MP_B  -> WechatJSAPIPayServiceImpl
-> - WECHAT_APP_A -> WechatAPPPayServiceImpl
-> - ALIPAY_APP_A -> AlipayAPPPayServiceImpl
 
 ## 二、接口说明
 
@@ -182,6 +197,26 @@ CREATE TABLE `pay_refund`
 ## 三、支付渠道实现
 
 ### 微信支付
+
+#### 配置
+
+```yaml
+pay:
+  channel:
+    wechat:
+      merchant-id: ''
+      privateKey-path: ''
+      serial-number: ''
+      api-v3-key: ''
+```
+
+#### 实现类
+
+- weChatAppPayService
+- weChatH5PayService
+- weChatJsApiPayService
+- weChatNativePayService
+
 ### 支付宝支付
+
 ### 抖音支付
-### 钱包余额支付

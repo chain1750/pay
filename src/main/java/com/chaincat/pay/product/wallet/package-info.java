@@ -1,1 +1,0 @@
-package com.chaincat.pay.product.wallet;
