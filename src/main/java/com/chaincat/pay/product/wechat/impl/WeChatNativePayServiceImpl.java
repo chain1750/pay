@@ -1,6 +1,7 @@
 package com.chaincat.pay.product.wechat.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
@@ -25,7 +26,7 @@ import java.util.Map;
  *
  * @author chenhaizhuang
  */
-@Service("weChatNativePayService")
+@Service("weChatNative")
 public class WeChatNativePayServiceImpl extends WeChatBasePayServiceImpl {
 
     private final NativePayService nativePayService;
@@ -41,7 +42,7 @@ public class WeChatNativePayServiceImpl extends WeChatBasePayServiceImpl {
 
     @Override
     @SuppressWarnings("all")
-    public Map<String, Object> prepay(PayOrder payOrder) {
+    public String prepay(PayOrder payOrder) {
         Amount amount = new Amount();
         amount.setTotal(WeChatUtils.getAmountInt(payOrder.getOrderAmount()));
         String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
@@ -58,9 +59,10 @@ public class WeChatNativePayServiceImpl extends WeChatBasePayServiceImpl {
 
         try {
             PrepayResponse prepayResponse = nativePayService.prepay(prepayRequest);
-            return Map.of(
+            Map<String, String> result = Map.of(
                     "code_url", prepayResponse.getCodeUrl()
             );
+            return JSON.toJSONString(result);
         } catch (Exception e) {
             throw new BizException("微信Native 预支付失败", e);
         }

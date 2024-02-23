@@ -1,6 +1,7 @@
 package com.chaincat.pay.product.wechat.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
@@ -27,7 +28,7 @@ import java.util.Map;
  *
  * @author chenhaizhuang
  */
-@Service("weChatH5PayService")
+@Service("weChatH5")
 public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
 
     private final H5Service h5Service;
@@ -43,7 +44,7 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
 
     @Override
     @SuppressWarnings("all")
-    public Map<String, Object> prepay(PayOrder payOrder) {
+    public String prepay(PayOrder payOrder) {
         Amount amount = new Amount();
         amount.setTotal(WeChatUtils.getAmountInt(payOrder.getOrderAmount()));
         H5Info h5Info = new H5Info();
@@ -66,9 +67,10 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
 
         try {
             PrepayResponse prepayResponse = h5Service.prepay(prepayRequest);
-            return Map.of(
+            Map<String, String> result = Map.of(
                     "h5_url", prepayResponse.getH5Url()
             );
+            return JSON.toJSONString(result);
         } catch (Exception e) {
             throw new BizException("微信H5 预支付失败", e);
         }

@@ -1,6 +1,7 @@
 package com.chaincat.pay.product.wechat.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
@@ -25,7 +26,7 @@ import java.util.Map;
  *
  * @author chenhaizhuang
  */
-@Service("weChatAppPayService")
+@Service("weChatApp")
 public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
 
     private final AppServiceExtension appService;
@@ -41,7 +42,7 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
 
     @Override
     @SuppressWarnings("all")
-    public Map<String, Object> prepay(PayOrder payOrder) {
+    public String prepay(PayOrder payOrder) {
         Amount amount = new Amount();
         amount.setTotal(WeChatUtils.getAmountInt(payOrder.getOrderAmount()));
         String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
@@ -58,7 +59,7 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
 
         try {
             PrepayWithRequestPaymentResponse prepayResponse = appService.prepayWithRequestPayment(prepayRequest);
-            return Map.of(
+            Map<String, String> result = Map.of(
                     "appid", prepayResponse.getAppid(),
                     "partnerid", prepayResponse.getPartnerId(),
                     "prepayid", prepayResponse.getPrepayId(),
@@ -67,6 +68,7 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
                     "timestamp", prepayResponse.getTimestamp(),
                     "sign", prepayResponse.getSign()
             );
+            return JSON.toJSONString(result);
         } catch (Exception e) {
             throw new BizException("微信APP 预支付失败", e);
         }

@@ -5,7 +5,6 @@ import com.chaincat.pay.dao.entity.PayRefund;
 import com.chaincat.pay.model.base.PayResult;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * 统一支付接口
@@ -20,7 +19,7 @@ public interface IPayService<Order, Refund> {
      * @param payOrder 订单
      * @return Result
      */
-    Map<String, Object> prepay(PayOrder payOrder);
+    String prepay(PayOrder payOrder);
 
     /**
      * 关闭订单

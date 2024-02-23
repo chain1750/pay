@@ -1,5 +1,8 @@
 package com.chaincat.pay.model.base;
 
+import cn.hutool.core.date.DatePattern;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -30,6 +33,8 @@ public class OrderResult {
     /**
      * 支付时间
      */
+    @JsonFormat(pattern = DatePattern.NORM_DATETIME_MS_PATTERN)
+    @JSONField(format = DatePattern.NORM_DATETIME_MS_PATTERN)
     private LocalDateTime payTime;
 
     /**

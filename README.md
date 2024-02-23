@@ -212,11 +212,32 @@ pay:
 
 #### 实现类
 
-- weChatAppPayService
-- weChatH5PayService
-- weChatJsApiPayService
-- weChatNativePayService
+- weChatApp
+- weChatH5
+- weChatJsApi
+- weChatNative
 
 ### 支付宝支付
+
+#### 配置
+
+```yaml
+pay:
+  channel:
+    alipay:
+      server-url: ''
+      public-key: ''
+      seller-id: ''
+      apps:
+        appId1:
+          private-key: ''
+```
+
+#### 实现类
+
+- alipayApp
+- alipayJsApi
+- alipayPage
+- alipayWap
 
 ### 抖音支付
