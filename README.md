@@ -243,3 +243,11 @@ pay:
 ### 抖音支付 TODO
 
 ### 钱包余额支付 TODO
+
+## 四、时序图
+
+### 下单&支付
+
+![下单&支付](https://chain21.oss-cn-shenzhen.aliyuncs.com/2024022501.jpg)
+
+### 支付系统 & 业务服务轮询 TODO
