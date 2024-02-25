@@ -248,6 +248,6 @@ pay:
 
 ### 下单&支付
 
-![下单&支付](https://chain21.oss-cn-shenzhen.aliyuncs.com/2024022501.jpg)
+![下单&支付](https://minio.chaincat.top/public/2024022501.jpg)
 
 ### 支付系统 & 业务服务轮询 TODO
