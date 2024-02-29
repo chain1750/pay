@@ -1,0 +1,30 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /${application.name}
+
+spring:
+  application:
+    name: ${application.name}
+  profiles:
+    active: ${environment}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.address}
+        namespace: ${environment}
+
+logging:
+  charset:
+    file: UTF-8
+  file:
+    name: log/service.log
+  logback:
+    rollingpolicy:
+      max-file-size: 1MB
+      max-history: 30
+      file-name-pattern: log/service.%d{yyyy-MM-dd}.%i.log
+  level:
+    RocketmqClient: ERROR
+    io:
+      netty: ERROR
