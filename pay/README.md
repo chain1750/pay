@@ -6,6 +6,7 @@
 
 - 运行时添加参数：`nacos.address={Nacos地址};environment={环境}`
 - Nacos中配置MySQL、Redis、RocketMQ和jasypt，配置文件名称与`bootstrap.properties`一致，Nacos的命名空间与`environment`一致
+- 在主类`Application`添加包扫描，根据扫描的包可使用相应的支付产品
 - 配置支付和退款通知地址，格式为：`https域名 + 对外服务接口 + {产品名称}`
 
 > 通知地址说明：

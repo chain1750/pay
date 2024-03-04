@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * 启动类
@@ -13,6 +14,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @Slf4j
 @SpringBootApplication
 @EnableDiscoveryClient
+// 通过注入对应
+@ComponentScan(value = {"com.chaincat.pay", "com.chaincat.product.wechat", "com.chaincat.product.alipay"})
 public class Application {
 
     public static void main(String[] args) {
