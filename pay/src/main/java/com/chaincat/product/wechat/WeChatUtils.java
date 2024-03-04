@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.wechat;
+package com.chaincat.product.wechat;
 
 import cn.hutool.core.date.DatePattern;
 

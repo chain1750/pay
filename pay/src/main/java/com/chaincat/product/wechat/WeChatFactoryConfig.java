@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.wechat;
+package com.chaincat.product.wechat;
 
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;

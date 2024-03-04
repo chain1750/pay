@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.wechat;
+package com.chaincat.product.wechat;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

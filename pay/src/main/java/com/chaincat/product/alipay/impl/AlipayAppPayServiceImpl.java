@@ -1,27 +1,27 @@
-package com.chaincat.pay.product.alipay.impl;
+package com.chaincat.product.alipay.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.domain.AlipayTradeWapPayModel;
-import com.alipay.api.request.AlipayTradeWapPayRequest;
-import com.alipay.api.response.AlipayTradeWapPayResponse;
+import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.product.ProductProperties;
-import com.chaincat.pay.product.alipay.AlipayFactoryConfig;
-import com.chaincat.pay.product.alipay.AlipayProperties;
-import com.chaincat.pay.product.alipay.AlipayUtils;
+import com.chaincat.product.alipay.AlipayFactoryConfig;
+import com.chaincat.product.alipay.AlipayProperties;
+import com.chaincat.product.alipay.AlipayUtils;
 import org.springframework.stereotype.Service;
 
 /**
- * 支付宝手机网站支付实现类
+ * 支付宝APP支付实现类
  *
  * @author chenhaizhuang
  */
-@Service("alipayWap")
-public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
+@Service("alipayApp")
+public class AlipayAppPayServiceImpl extends AlipayBasePayServiceImpl {
 
-    public AlipayWapPayServiceImpl(AlipayProperties alipayProperties,
+    public AlipayAppPayServiceImpl(AlipayProperties alipayProperties,
                                    ProductProperties productProperties,
                                    AlipayFactoryConfig alipayFactoryConfig) {
         super(alipayProperties, productProperties, alipayFactoryConfig);
@@ -32,25 +32,23 @@ public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
         AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
         String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
         String payNotifyUrl = StrUtil.format(productProperties.getPayNotifyUrl(), beanName);
-        AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+        AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
         model.setOutTradeNo(payOrder.getOrderId());
         model.setTotalAmount(payOrder.getOrderAmount().toString());
         model.setSubject(payOrder.getDescription());
-        model.setProductCode("QUICK_WAP_WAY");
-        model.setSellerId(alipayProperties.getSellerId());
         model.setTimeExpire(AlipayUtils.getTimeStr(payOrder.getExpireTime()));
-        AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
+        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         request.setNotifyUrl(payNotifyUrl);
         request.setBizModel(model);
 
-        AlipayTradeWapPayResponse response;
+        AlipayTradeAppPayResponse response;
         try {
-            response = alipayClient.pageExecute(request);
+            response = alipayClient.sdkExecute(request);
         } catch (Exception e) {
-            throw new BizException("支付宝手机网站 预支付失败", e);
+            throw new BizException("支付宝APP 预支付失败", e);
         }
         if (!response.isSuccess()) {
-            throw new BizException("支付宝手机网站 预支付失败：" + response.getSubMsg());
+            throw new BizException("支付宝APP 预支付失败：" + response.getSubMsg());
         }
         return response.getBody();
     }

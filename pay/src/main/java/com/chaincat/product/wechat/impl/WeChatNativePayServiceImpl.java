@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.wechat.impl;
+package com.chaincat.product.wechat.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -6,38 +6,38 @@ import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.product.ProductProperties;
-import com.chaincat.pay.product.wechat.WeChatProperties;
-import com.chaincat.pay.product.wechat.WeChatUtils;
+import com.chaincat.product.wechat.WeChatProperties;
+import com.chaincat.product.wechat.WeChatUtils;
 import com.wechat.pay.java.core.notification.NotificationParser;
-import com.wechat.pay.java.service.payments.app.AppServiceExtension;
-import com.wechat.pay.java.service.payments.app.model.Amount;
-import com.wechat.pay.java.service.payments.app.model.CloseOrderRequest;
-import com.wechat.pay.java.service.payments.app.model.PrepayRequest;
-import com.wechat.pay.java.service.payments.app.model.PrepayWithRequestPaymentResponse;
-import com.wechat.pay.java.service.payments.app.model.QueryOrderByOutTradeNoRequest;
 import com.wechat.pay.java.service.payments.model.Transaction;
+import com.wechat.pay.java.service.payments.nativepay.NativePayService;
+import com.wechat.pay.java.service.payments.nativepay.model.Amount;
+import com.wechat.pay.java.service.payments.nativepay.model.CloseOrderRequest;
+import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
+import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
+import com.wechat.pay.java.service.payments.nativepay.model.QueryOrderByOutTradeNoRequest;
 import com.wechat.pay.java.service.refund.RefundService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 /**
- * 微信APP支付实现类
+ * 微信Native支付实现类
  *
  * @author chenhaizhuang
  */
-@Service("weChatApp")
-public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
+@Service("weChatNative")
+public class WeChatNativePayServiceImpl extends WeChatBasePayServiceImpl {
 
-    private final AppServiceExtension appService;
+    private final NativePayService nativePayService;
 
-    public WeChatAppPayServiceImpl(WeChatProperties weChatProperties,
-                                   ProductProperties productProperties,
-                                   NotificationParser notificationParser,
-                                   RefundService refundService,
-                                   AppServiceExtension appService) {
+    public WeChatNativePayServiceImpl(WeChatProperties weChatProperties,
+                                      ProductProperties productProperties,
+                                      NotificationParser notificationParser,
+                                      RefundService refundService,
+                                      NativePayService nativePayService) {
         super(weChatProperties, productProperties, notificationParser, refundService);
-        this.appService = appService;
+        this.nativePayService = nativePayService;
     }
 
     @Override
@@ -58,19 +58,13 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
         prepayRequest.setAmount(amount);
 
         try {
-            PrepayWithRequestPaymentResponse prepayResponse = appService.prepayWithRequestPayment(prepayRequest);
+            PrepayResponse prepayResponse = nativePayService.prepay(prepayRequest);
             Map<String, String> result = Map.of(
-                    "appid", prepayResponse.getAppid(),
-                    "partnerid", prepayResponse.getPartnerId(),
-                    "prepayid", prepayResponse.getPrepayId(),
-                    "package", prepayResponse.getPackageVal(),
-                    "noncestr", prepayResponse.getNonceStr(),
-                    "timestamp", prepayResponse.getTimestamp(),
-                    "sign", prepayResponse.getSign()
+                    "code_url", prepayResponse.getCodeUrl()
             );
             return JSON.toJSONString(result);
         } catch (Exception e) {
-            throw new BizException("微信APP 预支付失败", e);
+            throw new BizException("微信Native 预支付失败", e);
         }
     }
 
@@ -81,9 +75,9 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
         closeOrderRequest.setOutTradeNo(payOrder.getOrderId());
 
         try {
-            appService.closeOrder(closeOrderRequest);
+            nativePayService.closeOrder(closeOrderRequest);
         } catch (Exception e) {
-            throw new BizException("微信APP 关闭订单失败", e);
+            throw new BizException("微信Native 关闭订单失败", e);
         }
     }
 
@@ -94,10 +88,10 @@ public class WeChatAppPayServiceImpl extends WeChatBasePayServiceImpl {
         queryOrderByOutTradeNoRequest.setOutTradeNo(payOrder.getOrderId());
 
         try {
-            Transaction transaction = appService.queryOrderByOutTradeNo(queryOrderByOutTradeNoRequest);
+            Transaction transaction = nativePayService.queryOrderByOutTradeNo(queryOrderByOutTradeNoRequest);
             return PayResult.of(payOrder.getOrderId(), transaction);
         } catch (Exception e) {
-            throw new BizException("微信APP 查询订单失败", e);
+            throw new BizException("微信Native 查询订单失败", e);
         }
     }
 }

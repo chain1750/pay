@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.wechat.impl;
+package com.chaincat.product.wechat.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.ServletUtil;
@@ -10,8 +10,8 @@ import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.chaincat.pay.model.enums.RefundStateEnum;
 import com.chaincat.pay.product.IPayService;
 import com.chaincat.pay.product.ProductProperties;
-import com.chaincat.pay.product.wechat.WeChatProperties;
-import com.chaincat.pay.product.wechat.WeChatUtils;
+import com.chaincat.product.wechat.WeChatProperties;
+import com.chaincat.product.wechat.WeChatUtils;
 import com.wechat.pay.java.core.http.Constant;
 import com.wechat.pay.java.core.notification.NotificationParser;
 import com.wechat.pay.java.core.notification.RequestParam;

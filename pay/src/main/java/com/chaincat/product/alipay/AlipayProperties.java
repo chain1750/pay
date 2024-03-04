@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.alipay;
+package com.chaincat.product.alipay;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

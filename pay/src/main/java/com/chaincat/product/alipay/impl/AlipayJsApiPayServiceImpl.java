@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.alipay.impl;
+package com.chaincat.product.alipay.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alipay.api.AlipayClient;
@@ -8,9 +8,9 @@ import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.product.ProductProperties;
-import com.chaincat.pay.product.alipay.AlipayFactoryConfig;
-import com.chaincat.pay.product.alipay.AlipayProperties;
-import com.chaincat.pay.product.alipay.AlipayUtils;
+import com.chaincat.product.alipay.AlipayFactoryConfig;
+import com.chaincat.product.alipay.AlipayProperties;
+import com.chaincat.product.alipay.AlipayUtils;
 import org.springframework.stereotype.Service;
 
 /**

@@ -1,4 +1,4 @@
-package com.chaincat.pay.product.alipay;
+package com.chaincat.product.alipay;
 
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
