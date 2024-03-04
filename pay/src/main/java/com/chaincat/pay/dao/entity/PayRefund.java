@@ -73,11 +73,6 @@ public class PayRefund {
     private String refundFailDesc;
 
     /**
-     * 退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参
-     */
-    private String refundAttach;
-
-    /**
      * 订单
      */
     @TableField(exist = false)

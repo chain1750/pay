@@ -70,7 +70,6 @@ CREATE TABLE `pay_order`
     `biz_id`           VARCHAR(50)    NOT NULL COMMENT '业务ID',
     `biz_topic`        VARCHAR(50)    NOT NULL COMMENT '业务消息队列主题，支付回调时使用消息队列通知业务方，需要业务方做好消费动作',
     `biz_attach`       VARCHAR(1000)  NOT NULL DEFAULT '' COMMENT '业务附加信息，通知业务方时返回，若所需附加信息过长，建议存储在业务方',
-    `order_attach`     TEXT           NOT NULL DEFAULT '' COMMENT '订单附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参',
 
     PRIMARY KEY (`id`),
     UNIQUE KEY (`order_id`)
@@ -89,7 +88,6 @@ CREATE TABLE `pay_refund`
     `product_refund_id` VARCHAR(50)    NOT NULL DEFAULT '' COMMENT '产品退款ID',
     `refund_time`       DATETIME(3)    NULL COMMENT '退款时间',
     `refund_fail_desc`  VARCHAR(100)   NOT NULL DEFAULT '' COMMENT '退款失败描述',
-    `refund_attach`     TEXT           NOT NULL DEFAULT '' COMMENT '退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参',
 
     PRIMARY KEY (`id`),
     UNIQUE KEY (`refund_id`)
@@ -120,7 +118,6 @@ CREATE TABLE `pay_refund`
 | bizId         | string | 业务ID                                    |
 | bizTopic      | string | 业务消息队列主题，支付回调时使用消息队列通知业务方，需要业务方做好消费动作   |
 | bizAttach     | string | 业务附加信息，通知业务方时返回，若所需附加信息过长，建议存储在业务方      |
-| orderAttach   | string | 订单附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参    |
 
 > 返回参数
 
@@ -172,12 +169,11 @@ CREATE TABLE `pay_refund`
 
 > 请求参数
 
-| name         | type   | desc                                 |
-|--------------|--------|--------------------------------------|
-| orderId      | string | 订单ID，关联pay_order                     |
-| refundAmount | number | 退款金额，不能大于订单金额，单位元，最小0.01元            |
-| refundReason | string | 退款原因，简略描述，详细描述在业务方存储                 |
-| refundAttach | string | 退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参 |
+| name         | type   | desc                      |
+|--------------|--------|---------------------------|
+| orderId      | string | 订单ID，关联pay_order          |
+| refundAmount | number | 退款金额，不能大于订单金额，单位元，最小0.01元 |
+| refundReason | string | 退款原因，简略描述，详细描述在业务方存储      |
 
 > 返回参数
 

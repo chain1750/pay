@@ -110,9 +110,4 @@ public class PayOrder {
      * 业务附加信息，通知业务方时返回，若所需附加信息过长，建议存储在业务方
      */
     private String bizAttach;
-
-    /**
-     * 订单附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参
-     */
-    private String orderAttach;
 }

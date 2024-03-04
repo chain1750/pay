@@ -33,9 +33,4 @@ public class RefundCreateReq {
      */
     @NotBlank(message = "退款原因不能为空")
     private String refundReason;
-
-    /**
-     * 退款附加信息，针对不同支付渠道所需参数的差异，采用json字符串格式传参
-     */
-    private String refundAttach;
 }
