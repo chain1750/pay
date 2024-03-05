@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 钱包余额交易Service
@@ -131,13 +132,34 @@ public class WalletBalanceTransactionServiceImpl implements WalletBalanceTransac
         refundTransaction.setRelateId(transaction.getId());
         refundTransaction.setOutTradeId(req.getOutTradeId());
         refundTransaction.setTradeId(IdUtils.generate(now));
-        refundTransaction.setTradeAmount(req.getRefundAmount());
+        refundTransaction.setTradeAmount(BigDecimal.ZERO.subtract(req.getRefundAmount()));
         refundTransaction.setDescription(req.getRefundReason());
         refundTransaction.setTradeState(WalletTradeStateEnum.PROCESSING.name());
         refundTransaction.setNotifyUrl(req.getNotifyUrl());
         refundTransaction.setCreateTime(now);
         refundTransaction.setUpdateTime(now);
         walletBalanceTransactionMapper.insert(transaction);
+    }
+
+    private void refund(WalletBalance walletBalance, WalletBalanceTransaction transaction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.error("退款执行延迟睡眠错误", e);
+            }
+            LocalDateTime now = LocalDateTime.now();
+            BigDecimal balance = walletBalance.getBalance().subtract(transaction.getTradeAmount());
+            transaction.setBalance(balance);
+            transaction.setTradeState(WalletTradeStateEnum.SUCCESS.name());
+            transaction.setTradeTime(now);
+            transaction.setUpdateTime(now);
+            walletBalanceTransactionMapper.updateById(transaction);
+
+            walletBalance.setBalance(balance);
+            walletBalance.setUpdateTime(now);
+            walletBalanceMapper.updateById(walletBalance);
+        });
     }
 
     @Override
