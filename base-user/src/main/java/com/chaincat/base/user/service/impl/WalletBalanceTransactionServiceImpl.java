@@ -139,6 +139,7 @@ public class WalletBalanceTransactionServiceImpl implements WalletBalanceTransac
         refundTransaction.setCreateTime(now);
         refundTransaction.setUpdateTime(now);
         walletBalanceTransactionMapper.insert(transaction);
+        refund(walletBalance, refundTransaction);
     }
 
     private void refund(WalletBalance walletBalance, WalletBalanceTransaction transaction) {
