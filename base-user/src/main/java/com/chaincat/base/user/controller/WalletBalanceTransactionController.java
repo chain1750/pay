@@ -2,6 +2,7 @@ package com.chaincat.base.user.controller;
 
 import com.chaincat.base.user.model.base.ApiResult;
 import com.chaincat.base.user.model.req.WalletBalanceCloseReq;
+import com.chaincat.base.user.model.req.WalletBalancePayReq;
 import com.chaincat.base.user.model.req.WalletBalancePrepayReq;
 import com.chaincat.base.user.model.req.WalletBalanceQueryReq;
 import com.chaincat.base.user.model.req.WalletBalanceRefundReq;
@@ -73,6 +74,18 @@ public class WalletBalanceTransactionController {
     @PostMapping("/refund")
     public ApiResult<Void> refund(@Valid @RequestBody WalletBalanceRefundReq req) {
         walletBalanceTransactionService.refund(req);
+        return ApiResult.success();
+    }
+
+    /**
+     * 交易支付
+     *
+     * @param req 请求
+     * @return Result
+     */
+    @PostMapping("/pay")
+    public ApiResult<Void> pay(@Valid @RequestBody WalletBalancePayReq req) {
+        walletBalanceTransactionService.pay(req);
         return ApiResult.success();
     }
 }

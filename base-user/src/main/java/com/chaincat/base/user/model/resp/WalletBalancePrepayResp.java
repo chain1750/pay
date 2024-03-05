@@ -2,6 +2,8 @@ package com.chaincat.base.user.model.resp;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 钱包余额预支付结果
  *
@@ -9,6 +11,16 @@ import lombok.Data;
  */
 @Data
 public class WalletBalancePrepayResp {
+
+    /**
+     * 交易金额
+     */
+    private BigDecimal tradeAmount;
+
+    /**
+     * 余额
+     */
+    private BigDecimal balance;
 
     /**
      * 签名

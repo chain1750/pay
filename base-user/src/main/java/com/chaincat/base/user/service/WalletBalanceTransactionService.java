@@ -1,6 +1,7 @@
 package com.chaincat.base.user.service;
 
 import com.chaincat.base.user.model.req.WalletBalanceCloseReq;
+import com.chaincat.base.user.model.req.WalletBalancePayReq;
 import com.chaincat.base.user.model.req.WalletBalancePrepayReq;
 import com.chaincat.base.user.model.req.WalletBalanceQueryReq;
 import com.chaincat.base.user.model.req.WalletBalanceRefundReq;
@@ -43,4 +44,11 @@ public interface WalletBalanceTransactionService {
      * @param req 请求
      */
     void refund(WalletBalanceRefundReq req);
+
+    /**
+     * 交易支付
+     *
+     * @param req 请求
+     */
+    void pay(WalletBalancePayReq req);
 }

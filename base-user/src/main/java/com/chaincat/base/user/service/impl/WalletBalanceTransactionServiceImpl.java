@@ -12,6 +12,7 @@ import com.chaincat.base.user.dao.mapper.WalletMapper;
 import com.chaincat.base.user.exception.BizException;
 import com.chaincat.base.user.model.enums.WalletTradeStateEnum;
 import com.chaincat.base.user.model.req.WalletBalanceCloseReq;
+import com.chaincat.base.user.model.req.WalletBalancePayReq;
 import com.chaincat.base.user.model.req.WalletBalancePrepayReq;
 import com.chaincat.base.user.model.req.WalletBalanceQueryReq;
 import com.chaincat.base.user.model.req.WalletBalanceRefundReq;
@@ -67,6 +68,9 @@ public class WalletBalanceTransactionServiceImpl implements WalletBalanceTransac
         walletBalanceTransactionMapper.insert(transaction);
         // 加密交易
         WalletBalancePrepayResp resp = new WalletBalancePrepayResp();
+        resp.setTradeAmount(transaction.getTradeAmount());
+        resp.setBalance(walletBalance.getBalance());
+        // TODO
         resp.setSignature("");
         return resp;
     }
@@ -134,5 +138,28 @@ public class WalletBalanceTransactionServiceImpl implements WalletBalanceTransac
         refundTransaction.setCreateTime(now);
         refundTransaction.setUpdateTime(now);
         walletBalanceTransactionMapper.insert(transaction);
+    }
+
+    @Override
+    public void pay(WalletBalancePayReq req) {
+        // 查询数据
+        WalletBalanceTransaction transaction = new WalletBalanceTransaction();
+        WalletBalance walletBalance = walletBalanceMapper.selectById(transaction.getWalletBalanceId());
+        Assert.notNull(walletBalance, "钱包未开通");
+        Wallet wallet = walletMapper.selectById(walletBalance.getWalletId());
+        Assert.notNull(wallet, "钱包未开通");
+        // 校验密码和用户
+        // TODO
+        LocalDateTime now = LocalDateTime.now();
+        BigDecimal balance = walletBalance.getBalance().subtract(transaction.getTradeAmount());
+        transaction.setBalance(balance);
+        transaction.setTradeState(WalletTradeStateEnum.SUCCESS.name());
+        transaction.setTradeTime(now);
+        transaction.setUpdateTime(now);
+        walletBalanceTransactionMapper.updateById(transaction);
+
+        walletBalance.setBalance(balance);
+        walletBalance.setUpdateTime(now);
+        walletBalanceMapper.updateById(walletBalance);
     }
 }
