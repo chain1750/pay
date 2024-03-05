@@ -24,7 +24,7 @@ public class WalletBalanceTransaction {
     /**
      * 钱包余额ID
      */
-    private String walletBalanceId;
+    private Long walletBalanceId;
 
     /**
      * 关联ID
@@ -65,6 +65,11 @@ public class WalletBalanceTransaction {
      * 交易通知地址
      */
     private String notifyUrl;
+
+    /**
+     * 交易时间
+     */
+    private LocalDateTime tradeTime;
 
     /**
      * 创建时间
