@@ -8,12 +8,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 零钱交易
+ * 钱包余额交易
  *
  * @author chenhaizhuang
  */
 @Data
-public class SmallChangeTransaction {
+public class WalletBalanceTransaction {
 
     /**
      * ID
@@ -22,9 +22,19 @@ public class SmallChangeTransaction {
     private Long id;
 
     /**
-     * 零钱唯一标识
+     * 钱包余额ID
      */
-    private String scId;
+    private String walletBalanceId;
+
+    /**
+     * 关联ID
+     */
+    private Long relateId;
+
+    /**
+     * 外部交易ID
+     */
+    private String outTradeId;
 
     /**
      * 交易ID，表唯一键
@@ -50,6 +60,11 @@ public class SmallChangeTransaction {
      * 交易状态：PROCESSING-处理中，SUCCESS-交易成功，FAIL-交易失败
      */
     private String tradeState;
+
+    /**
+     * 交易通知地址
+     */
+    private String notifyUrl;
 
     /**
      * 创建时间

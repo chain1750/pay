@@ -2,19 +2,18 @@ package com.chaincat.base.user.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 零钱
+ * 钱包余额
  *
  * @author chenhaizhuang
  */
 @Data
-public class SmallChange {
+public class WalletBalance {
 
     /**
      * ID
@@ -23,14 +22,9 @@ public class SmallChange {
     private Long id;
 
     /**
-     * 用户ID
+     * 钱包ID
      */
-    private String userId;
-
-    /**
-     * 零钱唯一标识
-     */
-    private String scId;
+    private Long walletId;
 
     /**
      * 余额
@@ -46,10 +40,4 @@ public class SmallChange {
      * 更新时间
      */
     private LocalDateTime updateTime;
-
-    /**
-     * 版本号
-     */
-    @Version
-    private Integer version;
 }
