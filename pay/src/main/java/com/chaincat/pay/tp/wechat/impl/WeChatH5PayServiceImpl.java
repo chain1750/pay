@@ -1,13 +1,12 @@
-package com.chaincat.product.wechat.impl;
+package com.chaincat.pay.tp.wechat.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.strategy.PayTpProperties;
-import com.chaincat.product.wechat.WeChatProperties;
-import com.chaincat.product.wechat.WeChatUtils;
+import com.chaincat.pay.tp.wechat.WeChatProperties;
+import com.chaincat.pay.tp.wechat.WeChatUtils;
 import com.wechat.pay.java.core.notification.NotificationParser;
 import com.wechat.pay.java.service.payments.h5.H5Service;
 import com.wechat.pay.java.service.payments.h5.model.Amount;
@@ -29,7 +28,7 @@ import java.util.Map;
  * @author chenhaizhuang
  */
 @Service("weChatH5")
-public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
+public class WeChatH5PayServiceImpl extends WeChatPayServiceImpl {
 
     private final H5Service h5Service;
 
@@ -52,16 +51,14 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setPayerClientIp(payOrder.getUserIp());
         sceneInfo.setH5Info(h5Info);
-        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String payNotifyUrl = StrUtil.format(payTpProperties.getPayNotifyUrl(), beanName);
 
         PrepayRequest prepayRequest = new PrepayRequest();
-        prepayRequest.setAppid(payOrder.getProductAppId());
+        prepayRequest.setAppid(payOrder.getPayTpAppId());
         prepayRequest.setMchid(weChatProperties.getMerchantId());
         prepayRequest.setDescription(payOrder.getDescription());
         prepayRequest.setOutTradeNo(payOrder.getOrderId());
         prepayRequest.setTimeExpire(WeChatUtils.getTimeStr(payOrder.getExpireTime()));
-        prepayRequest.setNotifyUrl(payNotifyUrl);
+        prepayRequest.setNotifyUrl(payTpProperties.buildPayNotifyUrl(payOrder.getPayTpName()));
         prepayRequest.setAmount(amount);
         prepayRequest.setSceneInfo(sceneInfo);
 
@@ -85,7 +82,7 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
         try {
             h5Service.closeOrder(closeOrderRequest);
         } catch (Exception e) {
-            throw new BizException("微信H5 关闭订单失败", e);
+            throw new BizException("微信H5 关闭支付失败", e);
         }
     }
 
@@ -99,7 +96,7 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
             Transaction transaction = h5Service.queryOrderByOutTradeNo(queryOrderByOutTradeNoRequest);
             return PayResult.of(payOrder.getOrderId(), transaction);
         } catch (Exception e) {
-            throw new BizException("微信H5 查询订单失败", e);
+            throw new BizException("微信H5 查询支付失败", e);
         }
     }
 }

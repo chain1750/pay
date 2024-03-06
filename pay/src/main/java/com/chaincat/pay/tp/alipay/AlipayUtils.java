@@ -1,4 +1,4 @@
-package com.chaincat.product.alipay;
+package com.chaincat.pay.tp.alipay;
 
 import cn.hutool.core.date.DatePattern;
 

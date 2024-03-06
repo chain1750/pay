@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void handleOrder() {
         List<PayOrder> payOrders = payOrderMapper.selectList(Wrappers.<PayOrder>lambdaQuery()
-                .eq(PayOrder::getOrderState, OrderStateEnum.NOT_PAY.name()));
+                .eq(PayOrder::getOrderState, OrderStateEnum.NOT_PAY));
         log.info("获取未支付的订单，数量：{}", payOrders.size());
         payOrders.forEach(payOrder -> CompletableFuture.runAsync(() -> runHandleOrder(payOrder), commonExecutor));
     }
@@ -86,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                         .eq(PayOrder::getOrderId, payOrder.getOrderId()));
-                if (!OrderStateEnum.NOT_PAY.name().equals(payOrder.getOrderState())) {
+                if (OrderStateEnum.NOT_PAY != payOrder.getOrderState()) {
                     return;
                 }
             } while (!locked);
@@ -124,7 +124,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void handleRefund() {
         List<PayRefund> payRefunds = payRefundMapper.selectList(Wrappers.<PayRefund>lambdaQuery()
-                .eq(PayRefund::getRefundState, RefundStateEnum.PROCESSING.name()));
+                .eq(PayRefund::getRefundState, RefundStateEnum.PROCESSING));
         log.info("获取处理中的退款，数量：{}", payRefunds.size());
         payRefunds.forEach(payRefund -> CompletableFuture.runAsync(() -> runHandleRefund(payRefund), commonExecutor));
     }
@@ -139,7 +139,7 @@ public class TaskServiceImpl implements TaskService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payRefund = payRefundMapper.selectOne(Wrappers.<PayRefund>lambdaQuery()
                         .eq(PayRefund::getRefundId, payRefund.getRefundId()));
-                if (!RefundStateEnum.PROCESSING.name().equals(payRefund.getRefundState())) {
+                if (RefundStateEnum.PROCESSING != payRefund.getRefundState()) {
                     return;
                 }
             } while (!locked);

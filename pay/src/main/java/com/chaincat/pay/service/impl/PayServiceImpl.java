@@ -133,7 +133,7 @@ public class PayServiceImpl implements PayService {
                 payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                         .eq(PayOrder::getOrderId, req.getOrderId()));
                 Assert.notNull(payOrder, "支付不存在");
-                if (!OrderStateEnum.NOT_PAY.name().equals(payOrder.getOrderState())) {
+                if (OrderStateEnum.NOT_PAY != payOrder.getOrderState()) {
                     return BeanUtil.copyProperties(payOrder, PayResp.class);
                 }
             } while (!locked);
@@ -170,7 +170,7 @@ public class PayServiceImpl implements PayService {
             PayOrder payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                     .eq(PayOrder::getOrderId, req.getOrderId()));
             Assert.notNull(payOrder, "支付不存在");
-            if (!OrderStateEnum.SUCCESS.name().equals(payOrder.getOrderState())) {
+            if (OrderStateEnum.SUCCESS != payOrder.getOrderState()) {
                 throw new BizException("未支付成功，无法退款");
             }
             // 支付第三方统一接口
@@ -179,7 +179,7 @@ public class PayServiceImpl implements PayService {
             LocalDateTime now = LocalDateTime.now();
             PayRefund payRefund = BeanUtil.copyProperties(req, PayRefund.class);
             payRefund.setRefundId(IdUtils.generate(IdUtils.PREFIX_REFUND, now));
-            payRefund.setRefundState(RefundStateEnum.PROCESSING.name());
+            payRefund.setRefundState(RefundStateEnum.PROCESSING);
             payRefund.setCreateTime(now);
             payRefund.setUpdateTime(now);
             payRefundMapper.insert(payRefund);

@@ -1,4 +1,4 @@
-package com.chaincat.product.wechat;
+package com.chaincat.pay.tp.wechat;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties("pay.channel.wechat")
+@ConfigurationProperties("pay.tp.wechat")
 public class WeChatProperties {
 
     /**

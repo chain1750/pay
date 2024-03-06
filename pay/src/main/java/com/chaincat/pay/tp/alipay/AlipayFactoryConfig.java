@@ -1,4 +1,4 @@
-package com.chaincat.product.alipay;
+package com.chaincat.pay.tp.alipay;
 
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
@@ -28,12 +28,12 @@ public class AlipayFactoryConfig {
 
     @PostConstruct
     public void init() {
-        Map<String, AlipayProperties.App> apps = alipayProperties.getApps();
-        apps.forEach((key, value) -> {
+        Map<String, String> privateKeys = alipayProperties.getPrivateKeys();
+        privateKeys.forEach((key, value) -> {
             AlipayConfig alipayConfig = new AlipayConfig();
             alipayConfig.setServerUrl(alipayProperties.getServerUrl());
             alipayConfig.setAppId(key);
-            alipayConfig.setPrivateKey(value.getPrivateKey());
+            alipayConfig.setPrivateKey(value);
             alipayConfig.setAlipayPublicKey(alipayProperties.getPublicKey());
             try {
                 AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig);

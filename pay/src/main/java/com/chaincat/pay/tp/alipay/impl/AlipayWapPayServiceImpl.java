@@ -1,6 +1,5 @@
-package com.chaincat.product.alipay.impl;
+package com.chaincat.pay.tp.alipay.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
@@ -8,9 +7,9 @@ import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.strategy.PayTpProperties;
-import com.chaincat.product.alipay.AlipayFactoryConfig;
-import com.chaincat.product.alipay.AlipayProperties;
-import com.chaincat.product.alipay.AlipayUtils;
+import com.chaincat.pay.tp.alipay.AlipayFactoryConfig;
+import com.chaincat.pay.tp.alipay.AlipayProperties;
+import com.chaincat.pay.tp.alipay.AlipayUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @author chenhaizhuang
  */
 @Service("alipayWap")
-public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
+public class AlipayWapPayServiceImpl extends AlipayPayServiceImpl {
 
     public AlipayWapPayServiceImpl(AlipayProperties alipayProperties,
                                    PayTpProperties payTpProperties,
@@ -29,9 +28,7 @@ public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
 
     @Override
     public String prepay(PayOrder payOrder) {
-        AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
-        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String payNotifyUrl = StrUtil.format(payTpProperties.getPayNotifyUrl(), beanName);
+        AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getPayTpAppId());
         AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
         model.setOutTradeNo(payOrder.getOrderId());
         model.setTotalAmount(payOrder.getOrderAmount().toString());
@@ -40,7 +37,7 @@ public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
         model.setSellerId(alipayProperties.getSellerId());
         model.setTimeExpire(AlipayUtils.getTimeStr(payOrder.getExpireTime()));
         AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
-        request.setNotifyUrl(payNotifyUrl);
+        request.setNotifyUrl(payTpProperties.buildPayNotifyUrl(payOrder.getPayTpName()));
         request.setBizModel(model);
 
         AlipayTradeWapPayResponse response;

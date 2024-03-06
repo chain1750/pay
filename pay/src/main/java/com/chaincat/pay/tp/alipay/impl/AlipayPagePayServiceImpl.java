@@ -1,6 +1,5 @@
-package com.chaincat.product.alipay.impl;
+package com.chaincat.pay.tp.alipay.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.request.AlipayTradePagePayRequest;
@@ -8,9 +7,9 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.strategy.PayTpProperties;
-import com.chaincat.product.alipay.AlipayFactoryConfig;
-import com.chaincat.product.alipay.AlipayProperties;
-import com.chaincat.product.alipay.AlipayUtils;
+import com.chaincat.pay.tp.alipay.AlipayFactoryConfig;
+import com.chaincat.pay.tp.alipay.AlipayProperties;
+import com.chaincat.pay.tp.alipay.AlipayUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
  * @author chenhaizhuang
  */
 @Service("alipayPage")
-public class AlipayPagePayServiceImpl extends AlipayBasePayServiceImpl {
+public class AlipayPagePayServiceImpl extends AlipayPayServiceImpl {
 
     public AlipayPagePayServiceImpl(AlipayProperties alipayProperties,
                                     PayTpProperties payTpProperties,
@@ -29,9 +28,7 @@ public class AlipayPagePayServiceImpl extends AlipayBasePayServiceImpl {
 
     @Override
     public String prepay(PayOrder payOrder) {
-        AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
-        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String payNotifyUrl = StrUtil.format(payTpProperties.getPayNotifyUrl(), beanName);
+        AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getPayTpAppId());
         AlipayTradePagePayModel model = new AlipayTradePagePayModel();
         model.setOutTradeNo(payOrder.getOrderId());
         model.setTotalAmount(payOrder.getOrderAmount().toString());
@@ -39,7 +36,7 @@ public class AlipayPagePayServiceImpl extends AlipayBasePayServiceImpl {
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
         model.setTimeExpire(AlipayUtils.getTimeStr(payOrder.getExpireTime()));
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-        request.setNotifyUrl(payNotifyUrl);
+        request.setNotifyUrl(payTpProperties.buildPayNotifyUrl(payOrder.getPayTpName()));
         request.setBizModel(model);
 
         AlipayTradePagePayResponse response;

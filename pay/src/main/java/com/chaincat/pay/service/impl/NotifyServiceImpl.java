@@ -69,7 +69,7 @@ public class NotifyServiceImpl implements NotifyService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                         .eq(PayOrder::getOrderId, payResult.getId()));
-                if (!OrderStateEnum.NOT_PAY.name().equals(payOrder.getOrderState())) {
+                if (OrderStateEnum.NOT_PAY != payOrder.getOrderState()) {
                     return notifyReturnData;
                 }
             } while (!locked);
@@ -119,7 +119,7 @@ public class NotifyServiceImpl implements NotifyService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payRefund = payRefundMapper.selectOne(Wrappers.<PayRefund>lambdaQuery()
                         .eq(PayRefund::getRefundId, payResult.getId()));
-                if (!RefundStateEnum.PROCESSING.name().equals(payRefund.getRefundState())) {
+                if (RefundStateEnum.PROCESSING != payRefund.getRefundState()) {
                     return notifyReturnData;
                 }
             } while (!locked);

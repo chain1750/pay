@@ -3,6 +3,7 @@ package com.chaincat.pay.dao.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.chaincat.pay.model.enums.RefundStateEnum;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -35,7 +36,7 @@ public class PayRefund {
     /**
      * 退款状态：PROCESSING-处理中，SUCCESS-成功，FAIL-失败
      */
-    private String refundState;
+    private RefundStateEnum refundState;
 
     /**
      * 退款金额，不能大于订单金额，单位元

@@ -1,4 +1,4 @@
-package com.chaincat.product.alipay;
+package com.chaincat.pay.tp.alipay;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @Data
 @Component
-@ConfigurationProperties("pay.channel.alipay")
+@ConfigurationProperties("pay.tp.alipay")
 public class AlipayProperties {
 
     /**
@@ -32,16 +32,7 @@ public class AlipayProperties {
     private String sellerId;
 
     /**
-     * 应用
+     * 应用ID -> 私钥
      */
-    private Map<String, App> apps;
-
-    @Data
-    public static class App {
-
-        /**
-         * 应用私钥
-         */
-        private String privateKey;
-    }
+    private Map<String, String> privateKeys;
 }
