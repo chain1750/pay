@@ -69,11 +69,6 @@ public class PayRefund {
     private LocalDateTime refundTime;
 
     /**
-     * 退款失败描述
-     */
-    private String refundFailDesc;
-
-    /**
      * 支付订单
      */
     @TableField(exist = false)

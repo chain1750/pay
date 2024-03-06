@@ -243,7 +243,6 @@ public abstract class AlipayPayServiceImpl implements
         } else if (LocalDateTime.now().isAfter(payRefund.getCreateTime().plusSeconds(10))) {
             log.info("退款失败：{}", payRefund.getRefundId());
             payRefund.setRefundState(RefundStateEnum.FAIL);
-            payRefund.setRefundFailDesc(refundStatus);
             updated = true;
         }
         return updated;

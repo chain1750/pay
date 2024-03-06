@@ -88,7 +88,6 @@ CREATE TABLE `pay_refund`
     `update_time`      DATETIME(3)    NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '修改时间',
     `pay_tp_refund_id` VARCHAR(50)    NOT NULL DEFAULT '' COMMENT '产品退款ID',
     `refund_time`      DATETIME(3)    NULL COMMENT '退款时间',
-    `refund_fail_desc` VARCHAR(100)   NOT NULL DEFAULT '' COMMENT '退款失败描述',
 
     PRIMARY KEY (`id`),
     UNIQUE KEY (`refund_id`)

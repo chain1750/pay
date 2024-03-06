@@ -76,8 +76,7 @@ public abstract class WeChatPayServiceImpl implements IPayService<Transaction, R
     public boolean updatePayOrder(Transaction transaction, PayOrder payOrder) {
         // 如果未支付且已过期，则关闭支付
         Transaction.TradeStateEnum tradeState = transaction.getTradeState();
-        if (Transaction.TradeStateEnum.NOTPAY.equals(tradeState)
-                && LocalDateTime.now().isAfter(payOrder.getExpireTime())) {
+        if (Transaction.TradeStateEnum.NOTPAY == tradeState && LocalDateTime.now().isAfter(payOrder.getExpireTime())) {
             log.info("支付已过期，执行关闭支付：{}", payOrder.getOrderId());
             closePay(payOrder);
             transaction.setTradeState(Transaction.TradeStateEnum.CLOSED);
@@ -85,12 +84,12 @@ public abstract class WeChatPayServiceImpl implements IPayService<Transaction, R
         // 更新已支付和已关闭的情况
         boolean updated = false;
         tradeState = transaction.getTradeState();
-        if (Transaction.TradeStateEnum.SUCCESS.equals(tradeState)) {
+        if (Transaction.TradeStateEnum.SUCCESS == tradeState) {
             log.info("已支付完成：{}", payOrder.getOrderId());
             payOrder.setOrderState(OrderStateEnum.SUCCESS);
             payOrder.setPayTime(WeChatUtils.getTime(transaction.getSuccessTime()));
             updated = true;
-        } else if (Transaction.TradeStateEnum.CLOSED.equals(tradeState)) {
+        } else if (Transaction.TradeStateEnum.CLOSED == tradeState) {
             log.info("已关闭支付：{}", payOrder.getOrderId());
             payOrder.setOrderState(OrderStateEnum.CLOSED);
             updated = true;
@@ -173,15 +172,14 @@ public abstract class WeChatPayServiceImpl implements IPayService<Transaction, R
         // 更新已完成和失败的情况
         boolean updated = false;
         Status status = refund.getStatus();
-        if (Status.SUCCESS.equals(status)) {
+        if (Status.SUCCESS == status) {
             log.info("已退款完成：{}", payRefund.getRefundId());
             payRefund.setRefundState(RefundStateEnum.SUCCESS);
             payRefund.setRefundTime(WeChatUtils.getTime(refund.getSuccessTime()));
             updated = true;
-        } else if (Status.CLOSED.equals(status) || Status.ABNORMAL.equals(status)) {
+        } else if (Status.CLOSED == status || Status.ABNORMAL == status) {
             log.info("退款失败：{}", payRefund.getRefundId());
             payRefund.setRefundState(RefundStateEnum.FAIL);
-            payRefund.setRefundFailDesc(status.name());
             updated = true;
         }
         payRefund.setPayTpRefundId(refund.getRefundId());

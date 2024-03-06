@@ -2,6 +2,7 @@ package com.chaincat.pay.model.resp;
 
 import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -23,7 +24,7 @@ public class PayResp {
     /**
      * 订单状态：NOT_PAY-未支付，SUCCESS-已支付，CLOSED-已关闭
      */
-    private String orderState;
+    private OrderStateEnum orderState;
 
     /**
      * 支付第三方订单ID
