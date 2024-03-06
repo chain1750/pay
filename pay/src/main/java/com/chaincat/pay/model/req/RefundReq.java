@@ -8,12 +8,12 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * 创建退款请求
+ * 退款请求
  *
  * @author chenhaizhuang
  */
 @Data
-public class RefundCreateReq {
+public class RefundReq {
 
     /**
      * 订单ID，关联pay_order

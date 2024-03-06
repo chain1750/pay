@@ -11,21 +11,21 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 创建订单请求
+ * 预支付请求
  *
  * @author chenhaizhuang
  */
 @Data
-public class OrderCreateReq {
+public class PrepayReq {
 
     /**
-     * 用户IP，当前下单用户所在IP
+     * 用户IP
      */
     @NotBlank(message = "用户IP不能为空")
     private String userIp;
 
     /**
-     * 用户ID，当前下单用户在系统中的唯一ID
+     * 用户ID
      */
     @NotBlank(message = "用户ID不能为空")
     private String userId;
@@ -44,22 +44,22 @@ public class OrderCreateReq {
     private String description;
 
     /**
-     * 产品名称，用于避免不同渠道上应用ID重复，命名格式：渠道_产品名称（大写字母）
+     * 支付第三方名称，定义业务方所使用的支付方式与支付系统实现类映射
      */
-    @NotBlank(message = "产品名称不能为空")
-    private String productName;
+    @NotBlank(message = "支付第三方名称不能为空")
+    private String payTpName;
 
     /**
-     * 产品应用ID
+     * 支付第三方应用ID
      */
-    @NotBlank(message = "产品应用ID不能为空")
-    private String productAppId;
+    @NotBlank(message = "支付第三方应用ID不能为空")
+    private String payTpAppId;
 
     /**
-     * 产品应用用户OpenId
+     * 支付第三方用户OpenID
      */
-    @NotBlank(message = "产品应用用户OpenId不能为空")
-    private String productOpenId;
+    @NotBlank(message = "支付第三方用户OpenID不能为空")
+    private String payTpOpenId;
 
     /**
      * 过期时间
@@ -69,7 +69,7 @@ public class OrderCreateReq {
     private LocalDateTime expireTime;
 
     /**
-     * 业务名称，用于避免不同业务的业务ID重复，命名格式：模块_业务（大写字母）
+     * 业务名称，用于避免不同业务的业务ID重复
      */
     @NotBlank(message = "业务名称不能为空")
     private String bizName;

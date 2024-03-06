@@ -8,8 +8,8 @@ import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.chaincat.pay.model.enums.RefundStateEnum;
-import com.chaincat.pay.product.IPayService;
-import com.chaincat.pay.product.ProductProperties;
+import com.chaincat.pay.strategy.IPayService;
+import com.chaincat.pay.strategy.PayTpProperties;
 import com.chaincat.product.wechat.WeChatProperties;
 import com.chaincat.product.wechat.WeChatUtils;
 import com.wechat.pay.java.core.http.Constant;
@@ -38,18 +38,18 @@ public abstract class WeChatBasePayServiceImpl implements IPayService<Transactio
 
     protected final WeChatProperties weChatProperties;
 
-    protected final ProductProperties productProperties;
+    protected final PayTpProperties payTpProperties;
 
     private final NotificationParser notificationParser;
 
     private final RefundService refundService;
 
     public WeChatBasePayServiceImpl(WeChatProperties weChatProperties,
-                                    ProductProperties productProperties,
+                                    PayTpProperties payTpProperties,
                                     NotificationParser notificationParser,
                                     RefundService refundService) {
         this.weChatProperties = weChatProperties;
-        this.productProperties = productProperties;
+        this.payTpProperties = payTpProperties;
         this.notificationParser = notificationParser;
         this.refundService = refundService;
     }
@@ -74,13 +74,13 @@ public abstract class WeChatBasePayServiceImpl implements IPayService<Transactio
     }
 
     @Override
-    public boolean updateOrder(Transaction transaction, PayOrder payOrder) {
+    public boolean updatePayOrder(Transaction transaction, PayOrder payOrder) {
         // 如果支付渠道上的订单未支付，且已过期，关闭订单
         Transaction.TradeStateEnum tradeState = transaction.getTradeState();
         if (Transaction.TradeStateEnum.NOTPAY.equals(tradeState)
                 && LocalDateTime.now().isAfter(payOrder.getExpireTime())) {
             log.info("订单已过期，执行关闭订单：{}", payOrder.getOrderId());
-            closeOrder(payOrder);
+            closePay(payOrder);
             transaction.setTradeState(Transaction.TradeStateEnum.CLOSED);
         }
         // 更新已支付和已关闭的情况
@@ -103,8 +103,8 @@ public abstract class WeChatBasePayServiceImpl implements IPayService<Transactio
     @Override
     public void refund(PayRefund payRefund) {
         PayOrder payOrder = payRefund.getPayOrder();
-        String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String refundNotifyUrl = StrUtil.format(productProperties.getRefundNotifyUrl(), beanName);
+        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
+        String refundNotifyUrl = StrUtil.format(payTpProperties.getRefundNotifyUrl(), beanName);
 
         AmountReq amountReq = new AmountReq();
         amountReq.setRefund(WeChatUtils.getAmountLong(payRefund.getRefundAmount()));
@@ -172,7 +172,7 @@ public abstract class WeChatBasePayServiceImpl implements IPayService<Transactio
     }
 
     @Override
-    public boolean updateRefund(Refund refund, PayRefund payRefund) {
+    public boolean updatePayRefund(Refund refund, PayRefund payRefund) {
         // 更新已完成和失败的情况
         boolean updated = false;
         Status status = refund.getStatus();

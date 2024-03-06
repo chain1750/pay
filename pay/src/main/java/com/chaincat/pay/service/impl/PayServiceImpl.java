@@ -11,18 +11,18 @@ import com.chaincat.pay.dao.entity.PayRefund;
 import com.chaincat.pay.dao.mapper.PayOrderMapper;
 import com.chaincat.pay.dao.mapper.PayRefundMapper;
 import com.chaincat.pay.exception.BizException;
-import com.chaincat.pay.model.base.OrderResult;
+import com.chaincat.pay.model.resp.PayResp;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.chaincat.pay.model.enums.RefundStateEnum;
-import com.chaincat.pay.model.req.OrderCloseReq;
-import com.chaincat.pay.model.req.OrderCreateReq;
-import com.chaincat.pay.model.req.OrderQueryReq;
-import com.chaincat.pay.model.req.RefundCreateReq;
-import com.chaincat.pay.model.resp.OrderCreateResp;
-import com.chaincat.pay.model.resp.RefundCreateResp;
-import com.chaincat.pay.product.IPayService;
-import com.chaincat.pay.product.IPayStrategy;
+import com.chaincat.pay.model.req.ClosePayReq;
+import com.chaincat.pay.model.req.PrepayReq;
+import com.chaincat.pay.model.req.QueryPayReq;
+import com.chaincat.pay.model.req.RefundReq;
+import com.chaincat.pay.model.resp.PrepayResp;
+import com.chaincat.pay.model.resp.RefundResp;
+import com.chaincat.pay.strategy.IPayService;
+import com.chaincat.pay.strategy.IPayStrategy;
 import com.chaincat.pay.service.PayService;
 import com.chaincat.pay.utils.IdUtils;
 import lombok.RequiredArgsConstructor;
@@ -56,29 +56,29 @@ public class PayServiceImpl implements PayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderCreateResp prepay(OrderCreateReq req) {
+    public PrepayResp prepay(PrepayReq req) {
         // 防重复提交
-        RLock lock = redissonClient.getLock(
-                StrUtil.format(RedisKeyConst.PAY_PREPAY_LOCK, req.getBizName(), req.getBizId()));
+        String key = StrUtil.format(RedisKeyConst.PAY_PREPAY_LOCK, req.getBizName(), req.getBizId());
+        RLock lock = redissonClient.getLock(key);
         Assert.isTrue(lock.tryLock(), "请求频繁，请稍后再试");
         try {
             Assert.isTrue(LocalDateTime.now().isBefore(req.getExpireTime()), "过期时间必须大于当前时间");
-            // 统一支付接口
-            IPayService payService = payStrategy.get(req.getProductName());
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(req.getPayTpName());
             // 创建订单
             LocalDateTime now = LocalDateTime.now();
             PayOrder payOrder = BeanUtil.copyProperties(req, PayOrder.class);
             payOrder.setOrderId(IdUtils.generate(IdUtils.PREFIX_ORDER, now));
-            payOrder.setOrderState(OrderStateEnum.NOT_PAY.name());
+            payOrder.setOrderState(OrderStateEnum.NOT_PAY);
             payOrder.setCreateTime(now);
             payOrder.setUpdateTime(now);
             payOrderMapper.insert(payOrder);
-            log.info("创建订单：{}", JSON.toJSONString(payOrder));
+            log.info("创建支付订单：{}", JSON.toJSONString(payOrder));
             // 返回预支付结果
-            OrderCreateResp resp = new OrderCreateResp();
+            PrepayResp resp = new PrepayResp();
             resp.setOrderId(payOrder.getOrderId());
-            // 调用统一支付接口的预支付方法获取预支付参数
-            resp.setPrepay(payService.prepay(payOrder));
+            // 调用支付第三方统一接口的预支付方法获取预支付信息
+            resp.setPrepayInfo(payService.prepay(payOrder));
             return resp;
         } finally {
             lock.unlock();
@@ -87,8 +87,9 @@ public class PayServiceImpl implements PayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void close(OrderCloseReq req) {
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, req.getOrderId()));
+    public void closePay(ClosePayReq req) {
+        String key = StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, req.getOrderId());
+        RLock lock = redissonClient.getLock(key);
         boolean locked = false;
         PayOrder payOrder;
         try {
@@ -97,22 +98,20 @@ public class PayServiceImpl implements PayService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                         .eq(PayOrder::getOrderId, req.getOrderId()));
-                Assert.notNull(payOrder, "订单不存在");
-                if (!OrderStateEnum.NOT_PAY.name().equals(payOrder.getOrderState())) {
-                    throw new BizException("订单非未支付状态，无法关闭");
-                }
+                Assert.notNull(payOrder, "支付不存在");
+                Assert.isTrue(OrderStateEnum.NOT_PAY == payOrder.getOrderState(), "已支付成功或已关闭支付，无法关闭");
             } while (!locked);
-            // 统一支付接口
-            IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 更新的订单状态
-            payOrder.setOrderState(OrderStateEnum.CLOSED.name());
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(payOrder.getPayTpName());
+            // 更新的支付订单状态
+            payOrder.setOrderState(OrderStateEnum.CLOSED);
             payOrder.setUpdateTime(LocalDateTime.now());
             payOrderMapper.updateById(payOrder);
-            log.info("关闭订单：{}", payOrder.getOrderId());
-            // 调用统一支付接口的关闭订单方法
-            payService.closeOrder(payOrder);
+            log.info("关闭支付订单：{}", payOrder.getOrderId());
+            // 调用支付第三方统一接口的关闭支付方法
+            payService.closePay(payOrder);
         } catch (InterruptedException e) {
-            throw new BizException("关闭订单加锁失败", e);
+            throw new BizException("关闭支付加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -122,8 +121,9 @@ public class PayServiceImpl implements PayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderResult query(OrderQueryReq req) {
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, req.getOrderId()));
+    public PayResp queryPay(QueryPayReq req) {
+        String key = StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, req.getOrderId());
+        RLock lock = redissonClient.getLock(key);
         boolean locked = false;
         PayOrder payOrder;
         try {
@@ -132,26 +132,26 @@ public class PayServiceImpl implements PayService {
                 locked = lock.tryLock(100L, TimeUnit.MILLISECONDS);
                 payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                         .eq(PayOrder::getOrderId, req.getOrderId()));
-                Assert.notNull(payOrder, "订单不存在");
+                Assert.notNull(payOrder, "支付不存在");
                 if (!OrderStateEnum.NOT_PAY.name().equals(payOrder.getOrderState())) {
-                    log.info("订单非未支付状态，可直接返回");
-                    return BeanUtil.copyProperties(payOrder, OrderResult.class);
+                    return BeanUtil.copyProperties(payOrder, PayResp.class);
                 }
             } while (!locked);
-            // 统一支付接口
-            IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 调用统一支付接口的查询订单方法
-            PayResult payResult = payService.queryOrder(payOrder);
-            // 查询到支付渠道的订单结果之后，对系统订单进行更新
-            boolean updated = payService.updateOrder(payResult.getData(), payOrder);
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(payOrder.getPayTpName());
+            // 调用支付第三方统一接口的查询支付方法
+            PayResult payResult = payService.queryPay(payOrder);
+            // 调用支付第三方统一接口的更新支付订单方法（由于查询到的第三方数据不一致，所以有实现类设置更新数据）
+            boolean updated = payService.updatePayOrder(payResult.getData(), payOrder);
+            // 若存在数据更新，则执行更新
             if (updated) {
                 payOrder.setUpdateTime(LocalDateTime.now());
                 payOrderMapper.updateById(payOrder);
-                log.info("查询订单-更新订单：{}", payOrder.getOrderId());
+                log.info("查询支付-更新支付订单：{}", payOrder.getOrderId());
             }
-            return BeanUtil.copyProperties(payOrder, OrderResult.class);
+            return BeanUtil.copyProperties(payOrder, PayResp.class);
         } catch (InterruptedException e) {
-            throw new BizException("查询订单加锁失败", e);
+            throw new BizException("查询支付加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -161,20 +161,21 @@ public class PayServiceImpl implements PayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RefundCreateResp refund(RefundCreateReq req) {
+    public RefundResp refund(RefundReq req) {
         // 防重复提交
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_REFUND_EXEC_LOCK, req.getOrderId()));
+        String key = StrUtil.format(RedisKeyConst.PAY_REFUND_EXEC_LOCK, req.getOrderId());
+        RLock lock = redissonClient.getLock(key);
         Assert.isTrue(lock.tryLock(), "请求频繁，请稍后再试");
         try {
             PayOrder payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                     .eq(PayOrder::getOrderId, req.getOrderId()));
-            Assert.notNull(payOrder, "订单不存在");
+            Assert.notNull(payOrder, "支付不存在");
             if (!OrderStateEnum.SUCCESS.name().equals(payOrder.getOrderState())) {
-                throw new BizException("订单未支付，不可退款");
+                throw new BizException("未支付成功，无法退款");
             }
-            // 统一支付接口
-            IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 创建退款
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(payOrder.getPayTpName());
+            // 创建支付退款
             LocalDateTime now = LocalDateTime.now();
             PayRefund payRefund = BeanUtil.copyProperties(req, PayRefund.class);
             payRefund.setRefundId(IdUtils.generate(IdUtils.PREFIX_REFUND, now));
@@ -182,12 +183,12 @@ public class PayServiceImpl implements PayService {
             payRefund.setCreateTime(now);
             payRefund.setUpdateTime(now);
             payRefundMapper.insert(payRefund);
-            log.info("创建退款：{}", JSON.toJSONString(payRefund));
-            // 调用统一支付接口的退款方法
+            log.info("创建支付退款：{}", JSON.toJSONString(payRefund));
+            // 调用支付第三方统一接口的退款方法
             payRefund.setPayOrder(payOrder);
             payService.refund(payRefund);
             // 返回参数
-            RefundCreateResp resp = new RefundCreateResp();
+            RefundResp resp = new RefundResp();
             resp.setRefundId(payRefund.getRefundId());
             return resp;
         } finally {

@@ -7,7 +7,7 @@ import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
-import com.chaincat.pay.product.ProductProperties;
+import com.chaincat.pay.strategy.PayTpProperties;
 import com.chaincat.product.alipay.AlipayFactoryConfig;
 import com.chaincat.product.alipay.AlipayProperties;
 import com.chaincat.product.alipay.AlipayUtils;
@@ -22,16 +22,16 @@ import org.springframework.stereotype.Service;
 public class AlipayWapPayServiceImpl extends AlipayBasePayServiceImpl {
 
     public AlipayWapPayServiceImpl(AlipayProperties alipayProperties,
-                                   ProductProperties productProperties,
+                                   PayTpProperties payTpProperties,
                                    AlipayFactoryConfig alipayFactoryConfig) {
-        super(alipayProperties, productProperties, alipayFactoryConfig);
+        super(alipayProperties, payTpProperties, alipayFactoryConfig);
     }
 
     @Override
     public String prepay(PayOrder payOrder) {
         AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
-        String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String payNotifyUrl = StrUtil.format(productProperties.getPayNotifyUrl(), beanName);
+        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
+        String payNotifyUrl = StrUtil.format(payTpProperties.getPayNotifyUrl(), beanName);
         AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
         model.setOutTradeNo(payOrder.getOrderId());
         model.setTotalAmount(payOrder.getOrderAmount().toString());

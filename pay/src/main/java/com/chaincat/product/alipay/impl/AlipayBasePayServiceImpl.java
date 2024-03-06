@@ -21,8 +21,8 @@ import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.chaincat.pay.model.enums.RefundStateEnum;
-import com.chaincat.pay.product.IPayService;
-import com.chaincat.pay.product.ProductProperties;
+import com.chaincat.pay.strategy.IPayService;
+import com.chaincat.pay.strategy.PayTpProperties;
 import com.chaincat.product.alipay.AlipayFactoryConfig;
 import com.chaincat.product.alipay.AlipayProperties;
 import com.chaincat.product.alipay.AlipayUtils;
@@ -44,20 +44,20 @@ public abstract class AlipayBasePayServiceImpl implements
 
     protected final AlipayProperties alipayProperties;
 
-    protected final ProductProperties productProperties;
+    protected final PayTpProperties payTpProperties;
 
     protected final AlipayFactoryConfig alipayFactoryConfig;
 
     public AlipayBasePayServiceImpl(AlipayProperties alipayProperties,
-                                    ProductProperties productProperties,
+                                    PayTpProperties payTpProperties,
                                     AlipayFactoryConfig alipayFactoryConfig) {
         this.alipayProperties = alipayProperties;
-        this.productProperties = productProperties;
+        this.payTpProperties = payTpProperties;
         this.alipayFactoryConfig = alipayFactoryConfig;
     }
 
     @Override
-    public void closeOrder(PayOrder payOrder) {
+    public void closePay(PayOrder payOrder) {
         AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
         AlipayTradeCloseModel model = new AlipayTradeCloseModel();
         model.setOutTradeNo(payOrder.getOrderId());
@@ -76,7 +76,7 @@ public abstract class AlipayBasePayServiceImpl implements
     }
 
     @Override
-    public PayResult<AlipayTradeQueryResponse> queryOrder(PayOrder payOrder) {
+    public PayResult<AlipayTradeQueryResponse> queryPay(PayOrder payOrder) {
         AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
         AlipayTradeQueryModel model = new AlipayTradeQueryModel();
         model.setOutTradeNo(payOrder.getOrderId());
@@ -128,11 +128,11 @@ public abstract class AlipayBasePayServiceImpl implements
     }
 
     @Override
-    public boolean updateOrder(AlipayTradeQueryResponse alipayTradeQueryResponse, PayOrder payOrder) {
+    public boolean updatePayOrder(AlipayTradeQueryResponse alipayTradeQueryResponse, PayOrder payOrder) {
         String tradeStatus = alipayTradeQueryResponse.getTradeStatus();
         if ("WAIT_BUYER_PAY".equals(tradeStatus) && LocalDateTime.now().isAfter(payOrder.getExpireTime())) {
             log.info("订单已过期，执行关闭订单：{}", payOrder.getOrderId());
-            closeOrder(payOrder);
+            closePay(payOrder);
             alipayTradeQueryResponse.setTradeStatus("TRADE_CLOSED");
         }
 
@@ -155,8 +155,8 @@ public abstract class AlipayBasePayServiceImpl implements
     @Override
     public void refund(PayRefund payRefund) {
         PayOrder payOrder = payRefund.getPayOrder();
-        String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String refundNotifyUrl = StrUtil.format(productProperties.getRefundNotifyUrl(), beanName);
+        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
+        String refundNotifyUrl = StrUtil.format(payTpProperties.getRefundNotifyUrl(), beanName);
 
         AlipayClient alipayClient = alipayFactoryConfig.get(payOrder.getProductAppId());
         AlipayTradeRefundModel model = new AlipayTradeRefundModel();
@@ -233,8 +233,8 @@ public abstract class AlipayBasePayServiceImpl implements
     }
 
     @Override
-    public boolean updateRefund(AlipayTradeFastpayRefundQueryResponse alipayTradeFastpayRefundQueryResponse,
-                                PayRefund payRefund) {
+    public boolean updatePayRefund(AlipayTradeFastpayRefundQueryResponse alipayTradeFastpayRefundQueryResponse,
+                                   PayRefund payRefund) {
         boolean updated = false;
 
         String refundStatus = alipayTradeFastpayRefundQueryResponse.getRefundStatus();

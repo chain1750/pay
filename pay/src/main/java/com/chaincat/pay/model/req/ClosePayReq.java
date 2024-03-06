@@ -5,12 +5,12 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 查询订单请求
+ * 关闭支付请求
  *
  * @author chenhaizhuang
  */
 @Data
-public class OrderQueryReq {
+public class ClosePayReq {
 
     /**
      * 订单ID

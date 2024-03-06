@@ -28,7 +28,7 @@ public class PayRefund {
     private String orderId;
 
     /**
-     * 退款ID，表唯一键，固定32位
+     * 退款ID，表唯一键
      */
     private String refundId;
 
@@ -58,9 +58,9 @@ public class PayRefund {
     private LocalDateTime updateTime;
 
     /**
-     * 产品退款ID
+     * 支付第三方退款ID
      */
-    private String productRefundId;
+    private String payTpRefundId;
 
     /**
      * 退款时间

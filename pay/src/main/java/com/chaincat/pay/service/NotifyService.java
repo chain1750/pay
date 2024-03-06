@@ -12,18 +12,18 @@ public interface NotifyService {
     /**
      * 处理支付通知
      *
-     * @param productName 产品名称
-     * @param request     请求
+     * @param payTpName 支付第三方名称
+     * @param request   请求
      * @return Result
      */
-    String handlePay(String productName, HttpServletRequest request);
+    String handlePay(String payTpName, HttpServletRequest request);
 
     /**
      * 处理退款通知
      *
-     * @param productName 产品名称
-     * @param request     请求
+     * @param payTpName 支付第三方名称
+     * @param request   请求
      * @return Result
      */
-    String handleRefund(String productName, HttpServletRequest request);
+    String handleRefund(String payTpName, HttpServletRequest request);
 }

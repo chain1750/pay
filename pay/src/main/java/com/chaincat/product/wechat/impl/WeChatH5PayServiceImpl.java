@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.chaincat.pay.dao.entity.PayOrder;
 import com.chaincat.pay.exception.BizException;
 import com.chaincat.pay.model.base.PayResult;
-import com.chaincat.pay.product.ProductProperties;
+import com.chaincat.pay.strategy.PayTpProperties;
 import com.chaincat.product.wechat.WeChatProperties;
 import com.chaincat.product.wechat.WeChatUtils;
 import com.wechat.pay.java.core.notification.NotificationParser;
@@ -34,11 +34,11 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
     private final H5Service h5Service;
 
     public WeChatH5PayServiceImpl(WeChatProperties weChatProperties,
-                                  ProductProperties productProperties,
+                                  PayTpProperties payTpProperties,
                                   NotificationParser notificationParser,
                                   RefundService refundService,
                                   H5Service h5Service) {
-        super(weChatProperties, productProperties, notificationParser, refundService);
+        super(weChatProperties, payTpProperties, notificationParser, refundService);
         this.h5Service = h5Service;
     }
 
@@ -52,8 +52,8 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setPayerClientIp(payOrder.getUserIp());
         sceneInfo.setH5Info(h5Info);
-        String beanName = productProperties.getEntities().get(payOrder.getProductName()).getBeanName();
-        String payNotifyUrl = StrUtil.format(productProperties.getPayNotifyUrl(), beanName);
+        String beanName = payTpProperties.getEntities().get(payOrder.getProductName()).getBeanName();
+        String payNotifyUrl = StrUtil.format(payTpProperties.getPayNotifyUrl(), beanName);
 
         PrepayRequest prepayRequest = new PrepayRequest();
         prepayRequest.setAppid(payOrder.getProductAppId());
@@ -77,7 +77,7 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
     }
 
     @Override
-    public void closeOrder(PayOrder payOrder) {
+    public void closePay(PayOrder payOrder) {
         CloseOrderRequest closeOrderRequest = new CloseOrderRequest();
         closeOrderRequest.setMchid(weChatProperties.getMerchantId());
         closeOrderRequest.setOutTradeNo(payOrder.getOrderId());
@@ -90,7 +90,7 @@ public class WeChatH5PayServiceImpl extends WeChatBasePayServiceImpl {
     }
 
     @Override
-    public PayResult<Transaction> queryOrder(PayOrder payOrder) {
+    public PayResult<Transaction> queryPay(PayOrder payOrder) {
         QueryOrderByOutTradeNoRequest queryOrderByOutTradeNoRequest = new QueryOrderByOutTradeNoRequest();
         queryOrderByOutTradeNoRequest.setMchid(weChatProperties.getMerchantId());
         queryOrderByOutTradeNoRequest.setOutTradeNo(payOrder.getOrderId());

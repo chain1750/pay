@@ -2,6 +2,7 @@ package com.chaincat.pay.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.chaincat.pay.model.enums.OrderStateEnum;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -22,24 +23,24 @@ public class PayOrder {
     private Long id;
 
     /**
-     * 用户IP，当前下单用户所在IP
+     * 用户IP
      */
     private String userIp;
 
     /**
-     * 用户ID，当前下单用户在系统中的唯一ID
+     * 用户ID
      */
     private String userId;
 
     /**
-     * 订单ID，表唯一键，固定32位
+     * 订单ID，表唯一键
      */
     private String orderId;
 
     /**
      * 订单状态：NOT_PAY-未支付，SUCCESS-已支付，CLOSED-已关闭
      */
-    private String orderState;
+    private OrderStateEnum orderState;
 
     /**
      * 订单金额，单位元
@@ -52,24 +53,24 @@ public class PayOrder {
     private String description;
 
     /**
-     * 产品名称，用于避免不同渠道上应用ID重复，命名格式：渠道_产品名称（大写字母）
+     * 支付第三方名称，定义业务方所使用的支付方式与支付系统实现类映射
      */
-    private String productName;
+    private String payTpName;
 
     /**
-     * 产品应用ID
+     * 支付第三方应用ID
      */
-    private String productAppId;
+    private String payTpAppId;
 
     /**
-     * 产品订单ID
+     * 支付第三方订单ID
      */
-    private String productOrderId;
+    private String payTpOrderId;
 
     /**
-     * 产品应用用户OpenId
+     * 支付第三方用户OpenID
      */
-    private String productOpenId;
+    private String payTpOpenId;
 
     /**
      * 创建时间
@@ -92,7 +93,7 @@ public class PayOrder {
     private LocalDateTime expireTime;
 
     /**
-     * 业务名称，用于避免不同业务的业务ID重复，命名格式：模块_业务（大写字母）
+     * 业务名称，用于避免不同业务的业务ID重复
      */
     private String bizName;
 

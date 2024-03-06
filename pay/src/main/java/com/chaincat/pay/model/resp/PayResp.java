@@ -1,4 +1,4 @@
-package com.chaincat.pay.model.base;
+package com.chaincat.pay.model.resp;
 
 import cn.hutool.core.date.DatePattern;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -8,12 +8,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 订单结果
+ * 支付结果
  *
  * @author chenhaizhuang
  */
 @Data
-public class OrderResult {
+public class PayResp {
 
     /**
      * 订单ID
@@ -26,9 +26,9 @@ public class OrderResult {
     private String orderState;
 
     /**
-     * 产品订单ID
+     * 支付第三方订单ID
      */
-    private String productOrderId;
+    private String payTpOrderId;
 
     /**
      * 支付时间
@@ -38,7 +38,7 @@ public class OrderResult {
     private LocalDateTime payTime;
 
     /**
-     * 业务名称，用于避免不同业务的业务ID重复，命名格式：模块_业务（大写字母）
+     * 业务名称，用于避免不同业务的业务ID重复
      */
     private String bizName;
 

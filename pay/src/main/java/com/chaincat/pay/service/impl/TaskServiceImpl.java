@@ -10,18 +10,18 @@ import com.chaincat.pay.dao.entity.PayRefund;
 import com.chaincat.pay.dao.mapper.PayOrderMapper;
 import com.chaincat.pay.dao.mapper.PayRefundMapper;
 import com.chaincat.pay.exception.BizException;
-import com.chaincat.pay.model.base.OrderResult;
 import com.chaincat.pay.model.base.PayResult;
 import com.chaincat.pay.model.enums.OrderStateEnum;
 import com.chaincat.pay.model.enums.RefundStateEnum;
-import com.chaincat.pay.product.IPayService;
-import com.chaincat.pay.product.IPayStrategy;
+import com.chaincat.pay.model.resp.PayResp;
 import com.chaincat.pay.service.TaskService;
-import lombok.RequiredArgsConstructor;
+import com.chaincat.pay.strategy.IPayService;
+import com.chaincat.pay.strategy.IPayStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,11 +39,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @SuppressWarnings("all")
 public class TaskServiceImpl implements TaskService {
 
     private final RedissonClient redissonClient;
+
+    private final RocketMQTemplate rocketMQTemplate;
 
     private final IPayStrategy payStrategy;
 
@@ -50,18 +52,33 @@ public class TaskServiceImpl implements TaskService {
 
     private final PayRefundMapper payRefundMapper;
 
-    private final RocketMQTemplate rocketMQTemplate;
+    private final Executor commonExecutor;
+
+    public TaskServiceImpl(RedissonClient redissonClient,
+                           RocketMQTemplate rocketMQTemplate,
+                           IPayStrategy payStrategy,
+                           PayOrderMapper payOrderMapper,
+                           PayRefundMapper payRefundMapper,
+                           @Qualifier("commonExecutor") Executor commonExecutor) {
+        this.redissonClient = redissonClient;
+        this.rocketMQTemplate = rocketMQTemplate;
+        this.payStrategy = payStrategy;
+        this.payOrderMapper = payOrderMapper;
+        this.payRefundMapper = payRefundMapper;
+        this.commonExecutor = commonExecutor;
+    }
 
     @Override
     public void handleOrder() {
         List<PayOrder> payOrders = payOrderMapper.selectList(Wrappers.<PayOrder>lambdaQuery()
                 .eq(PayOrder::getOrderState, OrderStateEnum.NOT_PAY.name()));
         log.info("获取未支付的订单，数量：{}", payOrders.size());
-        payOrders.forEach(payOrder -> CompletableFuture.runAsync(() -> runHandleOrder(payOrder)));
+        payOrders.forEach(payOrder -> CompletableFuture.runAsync(() -> runHandleOrder(payOrder), commonExecutor));
     }
 
     private void runHandleOrder(PayOrder payOrder) {
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, payOrder.getOrderId()));
+        String key = StrUtil.format(RedisKeyConst.PAY_ORDER_LOCK, payOrder.getOrderId());
+        RLock lock = redissonClient.getLock(key);
         boolean locked = false;
         try {
             // 锁单循环，避免其它操作冲突
@@ -74,28 +91,29 @@ public class TaskServiceImpl implements TaskService {
                 }
             } while (!locked);
 
-            // 统一支付接口
-            IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 调用统一支付接口的查询订单方法
-            PayResult payResult = payService.queryOrder(payOrder);
-            // 查询到支付渠道的订单结果之后，对系统订单进行更新
-            boolean updated = payService.updateOrder(payResult.getData(), payOrder);
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(payOrder.getPayTpName());
+            // 调用支付第三方统一接口的查询支付方法
+            PayResult payResult = payService.queryPay(payOrder);
+            // 调用支付第三方统一接口的更新支付订单方法（由于查询到的第三方数据不一致，所以有实现类设置更新数据）
+            boolean updated = payService.updatePayOrder(payResult.getData(), payOrder);
+            // 若存在数据更新，则执行更新
             if (updated) {
                 payOrder.setUpdateTime(LocalDateTime.now());
                 payOrderMapper.updateById(payOrder);
-                log.info("轮询订单-更新订单：{}", payOrder.getOrderId());
+                log.info("轮询支付订单-更新支付订单：{}", payOrder.getOrderId());
 
-                // 轮询订单更新订单之后，需将订单状态通知到业务方
-                // 这里不保证消息发送成功，需要业务方通过轮询补偿的方式完成订单状态更新
-                OrderResult orderResult = BeanUtil.copyProperties(payOrder, OrderResult.class);
-                String message = JSON.toJSONString(orderResult);
-                log.info("轮询订单-消息发送: {}, {}", payOrder.getBizTopic(), message);
+                // 轮询支付订单更新支付订单之后，需将支付状态通知到业务方
+                // 这里不保证消息发送成功，需要业务方通过轮询补偿的方式完成支付状态更新
+                PayResp payResp = BeanUtil.copyProperties(payOrder, PayResp.class);
+                String message = JSON.toJSONString(payResp);
+                log.info("轮询支付订单-消息发送: {}, {}", payOrder.getBizTopic(), message);
                 Message<String> msg = MessageBuilder.withPayload(message).build();
                 rocketMQTemplate.send(payOrder.getBizTopic(), msg);
-                log.info("轮询订单-消息发送成功, 消息id：{}", msg.getHeaders().get("id"));
+                log.info("轮询支付订单-消息发送成功, 消息id：{}", msg.getHeaders().get("id"));
             }
         } catch (InterruptedException e) {
-            throw new BizException("轮询订单加锁失败", e);
+            throw new BizException("轮询支付订单加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -108,11 +126,12 @@ public class TaskServiceImpl implements TaskService {
         List<PayRefund> payRefunds = payRefundMapper.selectList(Wrappers.<PayRefund>lambdaQuery()
                 .eq(PayRefund::getRefundState, RefundStateEnum.PROCESSING.name()));
         log.info("获取处理中的退款，数量：{}", payRefunds.size());
-        payRefunds.forEach(payRefund -> CompletableFuture.runAsync(() -> runHandleRefund(payRefund)));
+        payRefunds.forEach(payRefund -> CompletableFuture.runAsync(() -> runHandleRefund(payRefund), commonExecutor));
     }
 
     private void runHandleRefund(PayRefund payRefund) {
-        RLock lock = redissonClient.getLock(StrUtil.format(RedisKeyConst.PAY_REFUND_QUERY_LOCK, payRefund.getRefundId()));
+        String key = StrUtil.format(RedisKeyConst.PAY_REFUND_QUERY_LOCK, payRefund.getRefundId());
+        RLock lock = redissonClient.getLock(key);
         boolean locked = false;
         try {
             // 锁单循环，避免其它操作冲突
@@ -127,19 +146,20 @@ public class TaskServiceImpl implements TaskService {
 
             PayOrder payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                     .eq(PayOrder::getOrderId, payRefund.getOrderId()));
-            // 统一支付接口
-            IPayService payService = payStrategy.get(payOrder.getProductName());
-            // 调用统一支付接口的查询退款方法
+            // 支付第三方统一接口
+            IPayService payService = payStrategy.get(payOrder.getPayTpName());
+            // 调用支付第三方统一接口的查询退款方法
             PayResult payResult = payService.queryRefund(payRefund);
-            // 解析获取支付渠道的退款结果之后，对系统退款进行更新
-            boolean updated = payService.updateRefund(payResult.getData(), payRefund);
+            // 调用支付第三方统一接口的更新支付退款方法（由于查询到的第三方数据不一致，所以有实现类设置更新数据）
+            boolean updated = payService.updatePayRefund(payResult.getData(), payRefund);
+            // 若存在数据更新，则执行更新
             if (updated) {
                 payRefund.setUpdateTime(LocalDateTime.now());
                 payRefundMapper.updateById(payRefund);
-                log.info("轮询退款-更新退款：{}", payRefund.getRefundId());
+                log.info("轮询支付退款-更新支付退款：{}", payRefund.getRefundId());
             }
         } catch (InterruptedException e) {
-            throw new BizException("轮询退款加锁失败", e);
+            throw new BizException("轮询支付退款加锁失败", e);
         } finally {
             if (locked) {
                 lock.unlock();

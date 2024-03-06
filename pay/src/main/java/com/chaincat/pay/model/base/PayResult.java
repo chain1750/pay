@@ -16,7 +16,7 @@ public class PayResult<T> {
     private String id;
 
     /**
-     * 数据，不同支付渠道的查询对象
+     * 数据，不同支付第三方的查询对象
      */
     private T data;
 

@@ -25,26 +25,26 @@ public class NotifyController {
     /**
      * 处理支付通知
      *
-     * @param productName 产品名称
-     * @param request     请求
+     * @param payTpName 支付第三方名称
+     * @param request   请求
      * @return Result
      */
-    @PostMapping("/pay/{productName}")
-    public ApiResult<String> handlePay(@PathVariable String productName, HttpServletRequest request) {
-        String result = notifyService.handlePay(productName, request);
+    @PostMapping("/pay/{payTpName}")
+    public ApiResult<String> handlePay(@PathVariable String payTpName, HttpServletRequest request) {
+        String result = notifyService.handlePay(payTpName, request);
         return ApiResult.success(result);
     }
 
     /**
      * 处理退款通知
      *
-     * @param productName 产品名称
-     * @param request     请求
+     * @param payTpName 支付第三方名称
+     * @param request   请求
      * @return Result
      */
-    @PostMapping("/refund/{productName}")
-    public ApiResult<String> handleRefund(@PathVariable String productName, HttpServletRequest request) {
-        String result = notifyService.handleRefund(productName, request);
+    @PostMapping("/refund/{payTpName}")
+    public ApiResult<String> handleRefund(@PathVariable String payTpName, HttpServletRequest request) {
+        String result = notifyService.handleRefund(payTpName, request);
         return ApiResult.success(result);
     }
 }
