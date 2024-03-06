@@ -65,7 +65,7 @@ public class PayServiceImpl implements PayService {
             Assert.isTrue(LocalDateTime.now().isBefore(req.getExpireTime()), "过期时间必须大于当前时间");
             // 支付第三方统一接口
             IPayService payService = payStrategy.get(req.getPayTpName());
-            // 创建订单
+            // 创建支付订单
             LocalDateTime now = LocalDateTime.now();
             PayOrder payOrder = BeanUtil.copyProperties(req, PayOrder.class);
             payOrder.setOrderId(IdUtils.generate(IdUtils.PREFIX_ORDER, now));

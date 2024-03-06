@@ -5,7 +5,7 @@ import com.chaincat.pay.dao.entity.PayOrder;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 订单Mapper
+ * 支付订单Mapper
  *
  * @author chenhaizhuang
  */

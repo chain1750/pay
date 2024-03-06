@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 退款
+ * 支付退款
  *
  * @author chenhaizhuang
  */
@@ -74,7 +74,7 @@ public class PayRefund {
     private String refundFailDesc;
 
     /**
-     * 订单
+     * 支付订单
      */
     @TableField(exist = false)
     private PayOrder payOrder;

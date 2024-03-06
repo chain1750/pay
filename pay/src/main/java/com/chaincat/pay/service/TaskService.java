@@ -8,7 +8,7 @@ package com.chaincat.pay.service;
 public interface TaskService {
 
     /**
-     * 处理订单
+     * 处理支付订单
      */
     void handleOrder();
 

@@ -5,7 +5,7 @@ import com.chaincat.pay.dao.entity.PayRefund;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 退款Mapper
+ * 支付退款Mapper
  *
  * @author chenhaizhuang
  */

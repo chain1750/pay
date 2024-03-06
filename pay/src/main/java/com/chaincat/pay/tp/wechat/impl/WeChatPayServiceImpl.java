@@ -74,7 +74,7 @@ public abstract class WeChatPayServiceImpl implements IPayService<Transaction, R
 
     @Override
     public boolean updatePayOrder(Transaction transaction, PayOrder payOrder) {
-        // 如果未支付且已过期，则关闭订单
+        // 如果未支付且已过期，则关闭支付
         Transaction.TradeStateEnum tradeState = transaction.getTradeState();
         if (Transaction.TradeStateEnum.NOTPAY.equals(tradeState)
                 && LocalDateTime.now().isAfter(payOrder.getExpireTime())) {
