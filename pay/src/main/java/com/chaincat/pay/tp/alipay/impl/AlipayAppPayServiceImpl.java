@@ -1,5 +1,6 @@
 package com.chaincat.pay.tp.alipay.impl;
 
+import cn.hutool.core.lang.Assert;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
@@ -44,9 +45,7 @@ public class AlipayAppPayServiceImpl extends AlipayPayServiceImpl {
         } catch (Exception e) {
             throw new BizException("支付宝APP 预支付失败", e);
         }
-        if (!response.isSuccess()) {
-            throw new BizException("支付宝APP 预支付失败：" + response.getSubMsg());
-        }
+        Assert.isTrue(response.isSuccess(), "支付宝APP 预支付失败：" + response.getSubMsg());
         return response.getBody();
     }
 }

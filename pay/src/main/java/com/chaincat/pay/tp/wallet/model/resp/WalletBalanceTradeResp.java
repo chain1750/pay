@@ -8,12 +8,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 余额交易结果
+ * 钱包余额交易结果
  *
  * @author chenhaizhuang
  */
 @Data
-public class BalanceTradeResp {
+public class WalletBalanceTradeResp {
 
     /**
      * 外部交易ID

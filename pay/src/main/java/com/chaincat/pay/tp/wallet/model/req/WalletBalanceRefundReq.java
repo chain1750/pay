@@ -5,12 +5,12 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 余额退款请求
+ * 钱包余额退款请求
  *
  * @author chenhaizhuang
  */
 @Data
-public class BalanceRefundReq {
+public class WalletBalanceRefundReq {
 
     /**
      * 外部交易ID
@@ -36,4 +36,9 @@ public class BalanceRefundReq {
      * 通知地址
      */
     private String notifyUrl;
+
+    /**
+     * 签名
+     */
+    private String sign;
 }

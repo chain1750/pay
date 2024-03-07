@@ -5,12 +5,12 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 余额预支付结果
+ * 钱包余额预支付结果
  *
  * @author chenhaizhuang
  */
 @Data
-public class BalancePrepayResp {
+public class WalletBalancePrepayResp {
 
     /**
      * 交易金额

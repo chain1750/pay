@@ -170,9 +170,7 @@ public class PayServiceImpl implements PayService {
             PayOrder payOrder = payOrderMapper.selectOne(Wrappers.<PayOrder>lambdaQuery()
                     .eq(PayOrder::getOrderId, req.getOrderId()));
             Assert.notNull(payOrder, "支付不存在");
-            if (OrderStateEnum.SUCCESS != payOrder.getOrderState()) {
-                throw new BizException("未支付成功，无法退款");
-            }
+            Assert.isTrue(OrderStateEnum.SUCCESS == payOrder.getOrderState(), "未支付成功，无法退款");
             // 支付第三方统一接口
             IPayService payService = payStrategy.get(payOrder.getPayTpName());
             // 创建支付退款

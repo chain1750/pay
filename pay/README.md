@@ -236,9 +236,25 @@ pay:
 - alipayPage
 - alipayWap
 
-### 抖音支付 TODO
+### 钱包余额支付
 
-### 钱包余额支付 TODO
+#### 配置
+
+```yaml
+pay:
+  tp:
+    wallet-balance:
+      salt: ''
+      prepay-url: ''
+      close-pay-url: ''
+      query-pay-url: ''
+      refund-url: ''
+      query-refund-url: ''
+```
+
+#### 实现类
+
+- walletBalance
 
 ## 四、时序图
 

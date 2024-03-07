@@ -1,5 +1,6 @@
 package com.chaincat.pay.tp.alipay.impl;
 
+import cn.hutool.core.lang.Assert;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
@@ -69,9 +70,8 @@ public abstract class AlipayPayServiceImpl implements
         } catch (Exception e) {
             throw new BizException("支付宝 关闭支付失败", e);
         }
-        if (!response.isSuccess() && !"ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
-            throw new BizException("支付宝 关闭支付失败：" + response.getSubMsg());
-        }
+        Assert.isTrue(response.isSuccess() || "ACQ.TRADE_NOT_EXIST".equals(response.getSubCode()),
+                "支付宝 关闭支付失败：" + response.getSubMsg());
     }
 
     @Override
@@ -88,9 +88,8 @@ public abstract class AlipayPayServiceImpl implements
         } catch (Exception e) {
             throw new BizException("支付宝 查询支付失败", e);
         }
-        if (!response.isSuccess() && !"ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
-            throw new BizException("支付宝 查询支付失败：" + response.getSubMsg());
-        }
+        Assert.isTrue(response.isSuccess() || "ACQ.TRADE_NOT_EXIST".equals(response.getSubCode()),
+                "支付宝 查询支付失败：" + response.getSubMsg());
         if (!response.isSuccess() && "ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
             response = new AlipayTradeQueryResponse();
             response.setTradeStatus("WAIT_BUYER_PAY");
@@ -109,9 +108,7 @@ public abstract class AlipayPayServiceImpl implements
             throw new BizException("支付宝 解析支付通知失败", e);
         }
         String sellerId = requestParam.get("seller_id");
-        if (!signVerified || !alipayProperties.getSellerId().equals(sellerId)) {
-            throw new BizException("支付宝 解析支付通知失败");
-        }
+        Assert.isTrue(signVerified && alipayProperties.getSellerId().equals(sellerId), "支付宝 解析支付通知失败");
 
         String outTradeNo = requestParam.get("out_trade_no");
         String tradeNo = requestParam.get("trade_no");
@@ -171,9 +168,7 @@ public abstract class AlipayPayServiceImpl implements
         } catch (Exception e) {
             throw new BizException("支付宝 退款失败", e);
         }
-        if (!response.isSuccess()) {
-            throw new BizException("支付宝 退款失败：" + response.getSubMsg());
-        }
+        Assert.isTrue(response.isSuccess(), "支付宝 退款失败：" + response.getSubMsg());
     }
 
     @Override
@@ -194,10 +189,7 @@ public abstract class AlipayPayServiceImpl implements
         } catch (Exception e) {
             throw new BizException("支付宝 查询退款失败", e);
         }
-        if (!response.isSuccess()) {
-            throw new BizException("支付宝 查询退款失败：" + response.getSubMsg());
-        }
-
+        Assert.isTrue(response.isSuccess(), "支付宝 查询退款失败：" + response.getSubMsg());
         return PayResult.of(payRefund.getRefundId(), response);
     }
 
@@ -212,9 +204,7 @@ public abstract class AlipayPayServiceImpl implements
         }
 
         String sellerId = requestParam.get("seller_id");
-        if (!signVerified || !alipayProperties.getSellerId().equals(sellerId)) {
-            throw new BizException("支付宝 解析退款通知失败");
-        }
+        Assert.isTrue(signVerified && alipayProperties.getSellerId().equals(sellerId), "支付宝 解析退款通知失败");
 
         String outBizNo = requestParam.get("out_biz_no");
         String tradeStatus = requestParam.get("trade_status");

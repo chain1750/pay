@@ -1,9 +1,9 @@
 package com.chaincat.pay.tp.alipay;
 
+import cn.hutool.core.lang.Assert;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
-import com.chaincat.pay.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -46,9 +46,7 @@ public class AlipayFactoryConfig {
 
     public AlipayClient get(String appId) {
         AlipayClient alipayClient = this.alipayClientMap.get(appId);
-        if (alipayClient == null) {
-            throw new BizException("支付宝 获取支付宝客户失败");
-        }
+        Assert.isTrue(alipayClient != null, "支付宝 获取支付宝客户失败");
         return alipayClient;
     }
 }
