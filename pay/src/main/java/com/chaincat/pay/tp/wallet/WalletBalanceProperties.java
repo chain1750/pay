@@ -18,29 +18,4 @@ public class WalletBalanceProperties {
      * 盐值
      */
     private String salt;
-
-    /**
-     * 预支付地址
-     */
-    private String prepayUrl;
-
-    /**
-     * 关闭支付地址
-     */
-    private String closePayUrl;
-
-    /**
-     * 查询支付地址
-     */
-    private String queryPayUrl;
-
-    /**
-     * 退款地址
-     */
-    private String refundUrl;
-
-    /**
-     * 查询退款地址
-     */
-    private String queryRefundUrl;
 }
