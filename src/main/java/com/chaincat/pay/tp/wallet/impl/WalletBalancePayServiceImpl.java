@@ -49,7 +49,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
     @Override
     public String prepay(PayOrder payOrder) {
         WalletBalancePrepayReq req = new WalletBalancePrepayReq();
-        req.setUserId(payOrder.getUserId());
+        req.setUserId(payOrder.getPayTpOpenId());
         req.setOutTradeId(payOrder.getOrderId());
         req.setTradeAmount(payOrder.getOrderAmount());
         req.setDescription(payOrder.getDescription());
