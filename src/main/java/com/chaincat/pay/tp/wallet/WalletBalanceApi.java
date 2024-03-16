@@ -1,11 +1,11 @@
 package com.chaincat.pay.tp.wallet;
 
 /**
- * 钱包余额请求地址
+ * 钱包余额接口
  *
  * @author chenhaizhuang
  */
-public interface WalletBalanceRequestUrl {
+public interface WalletBalanceApi {
 
     /**
      * 预支付地址

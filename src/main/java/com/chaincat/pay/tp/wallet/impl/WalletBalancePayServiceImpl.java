@@ -15,7 +15,7 @@ import com.chaincat.pay.model.enums.RefundStateEnum;
 import com.chaincat.pay.strategy.IPayService;
 import com.chaincat.pay.strategy.PayTpProperties;
 import com.chaincat.pay.tp.wallet.WalletBalanceProperties;
-import com.chaincat.pay.tp.wallet.WalletBalanceRequestUrl;
+import com.chaincat.pay.tp.wallet.WalletBalanceApi;
 import com.chaincat.pay.tp.wallet.WalletBalanceUtils;
 import com.chaincat.pay.tp.wallet.model.enums.TradeStateEnum;
 import com.chaincat.pay.tp.wallet.model.req.WalletBalanceClosePayReq;
@@ -58,7 +58,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
         try {
             req.setSign(WalletBalanceUtils.getSign(BeanUtil.beanToMap(req), walletBalanceProperties.getSalt()));
             WalletBalancePrepayResp resp = (WalletBalancePrepayResp) WalletBalanceUtils
-                    .sendRequest(WalletBalanceRequestUrl.PREPAY_URL, JSON.toJSONString(req));
+                    .sendRequest(WalletBalanceApi.PREPAY_URL, JSON.toJSONString(req));
             return JSON.toJSONString(resp);
         } catch (Exception e) {
             throw new BizException("钱包余额 预支付失败", e);
@@ -72,7 +72,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
 
         try {
             req.setSign(WalletBalanceUtils.getSign(BeanUtil.beanToMap(req), walletBalanceProperties.getSalt()));
-            WalletBalanceUtils.sendRequest(WalletBalanceRequestUrl.CLOSE_PAY_URL, JSON.toJSONString(req));
+            WalletBalanceUtils.sendRequest(WalletBalanceApi.CLOSE_PAY_URL, JSON.toJSONString(req));
         } catch (Exception e) {
             throw new BizException("钱包余额 关闭支付失败", e);
         }
@@ -86,7 +86,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
         try {
             req.setSign(WalletBalanceUtils.getSign(BeanUtil.beanToMap(req), walletBalanceProperties.getSalt()));
             WalletBalanceTradeResp resp = (WalletBalanceTradeResp) WalletBalanceUtils
-                    .sendRequest(WalletBalanceRequestUrl.QUERY_PAY_URL, JSON.toJSONString(req));
+                    .sendRequest(WalletBalanceApi.QUERY_PAY_URL, JSON.toJSONString(req));
             return PayResult.of(payOrder.getOrderId(), resp);
         } catch (Exception e) {
             throw new BizException("钱包余额 查询支付失败", e);
@@ -145,7 +145,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
 
         try {
             req.setSign(WalletBalanceUtils.getSign(BeanUtil.beanToMap(req), walletBalanceProperties.getSalt()));
-            WalletBalanceUtils.sendRequest(WalletBalanceRequestUrl.REFUND_URL, JSON.toJSONString(req));
+            WalletBalanceUtils.sendRequest(WalletBalanceApi.REFUND_URL, JSON.toJSONString(req));
         } catch (Exception e) {
             throw new BizException("余额 退款失败", e);
         }
@@ -159,7 +159,7 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
         try {
             req.setSign(WalletBalanceUtils.getSign(BeanUtil.beanToMap(req), walletBalanceProperties.getSalt()));
             WalletBalanceTradeResp resp = (WalletBalanceTradeResp) WalletBalanceUtils
-                    .sendRequest(WalletBalanceRequestUrl.QUERY_REFUND_URL, JSON.toJSONString(req));
+                    .sendRequest(WalletBalanceApi.QUERY_REFUND_URL, JSON.toJSONString(req));
             return PayResult.of(payRefund.getRefundId(), resp);
         } catch (Exception e) {
             throw new BizException("钱包余额 查询退款失败", e);
