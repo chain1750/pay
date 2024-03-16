@@ -48,6 +48,13 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
 
     @Override
     public String prepay(PayOrder payOrder) {
+        /*
+        1.发起预支付，返回了预支付参数
+        2.预支付参数返回给前端，前端需要根据参数弹窗让用户输入钱包密码
+        3.前端携带所有预支付参数以及钱包密码发起钱包余额支付请求
+
+        预支付参数中包含signature字段，该字段是针对交易的保密信息加密得到，目的是让前端无感知且避免数据篡改问题。
+         */
         WalletBalancePrepayReq req = new WalletBalancePrepayReq();
         req.setUserId(payOrder.getPayTpOpenId());
         req.setOutTradeId(payOrder.getOrderId());
@@ -67,6 +74,9 @@ public class WalletBalancePayServiceImpl implements IPayService<WalletBalanceTra
 
     @Override
     public void closePay(PayOrder payOrder) {
+        /*
+        当交易取消的时候，在钱包的交易明细中并不需要展示这些，需用该接口来删除这些不需要的明细
+         */
         WalletBalanceClosePayReq req = new WalletBalanceClosePayReq();
         req.setOutTradeId(payOrder.getOrderId());
 
