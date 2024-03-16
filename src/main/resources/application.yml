@@ -13,6 +13,8 @@ spring:
       discovery:
         server-addr: ${nacos.address}
         namespace: ${environment}
+        username: ${nacos.username}
+        password: ${nacos.password}
 
 logging:
   charset:
