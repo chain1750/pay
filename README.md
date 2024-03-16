@@ -4,7 +4,7 @@
 
 ### 配置
 
-- 运行时添加参数：`nacos.address={Nacos地址};environment={环境}`
+- 运行时添加参数：`nacos.address={Nacos地址};nacos.username={Nacos用户名};nacos.password={Nacos密码};environment={环境}`
 - Nacos中配置MySQL、Redis、RocketMQ和jasypt，配置文件名称与`bootstrap.properties`一致，Nacos的命名空间与`environment`一致
 - 配置支付和退款通知地址，格式为：`https域名 + 对外服务接口 + {产品名称}`
 
@@ -260,7 +260,7 @@ pay:
 
 ![下单&支付](https://minio.chaincat.top/public/2024022501.jpg)
 
-### 支付系统&业务服务轮询 
+### 支付系统&业务服务轮询
 
 ![支付系统&业务服务轮询](https://minio.chaincat.top/public/2024030701.jpg)
 
